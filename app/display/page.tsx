@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { formatWaitTime, calculateWaitTime } from '@/lib/wait-time';
 import { format } from 'date-fns';
@@ -23,7 +23,7 @@ interface DoctorSummary {
   isAvailable?: boolean;
 }
 
-export default function DisplayPanel() {
+function DisplayPanelContent() {
   const searchParams = useSearchParams();
   const doctorId = searchParams.get('doctorId') || '';
   const [tokens, setTokens] = useState<Token[]>([]);
@@ -373,5 +373,31 @@ export default function DisplayPanel() {
         </div>
       )}
     </div>
+  );
+}
+
+function DisplayFallback() {
+  return (
+    <div style={{
+      minHeight: '100vh',
+      width: '100vw',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: '#0B0F1A',
+      color: '#9CA3AF',
+      fontFamily: 'Inter, system-ui, sans-serif',
+      fontSize: 16,
+    }}>
+      Loading display board...
+    </div>
+  );
+}
+
+export default function DisplayPanelPage() {
+  return (
+    <Suspense fallback={<DisplayFallback />}>
+      <DisplayPanelContent />
+    </Suspense>
   );
 }
