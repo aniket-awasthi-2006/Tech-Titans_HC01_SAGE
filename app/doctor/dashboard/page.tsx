@@ -110,30 +110,99 @@ export default function DoctorDashboard() {
   const [avgDuration, setAvgDuration] = useState(10);
 
   /* fetch ------------------------------------------------------------------- */
-  const fetchQueue = useCallback(async () => {
+  const fetchQueueOnly = useCallback(async () => {
     if (!token) return;
-    try {
-      const [qRes, cRes] = await Promise.all([
-        fetch('/api/tokens', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('/api/consultations', { headers: { Authorization: `Bearer ${token}` } }),
-      ]);
-      const [qData, cData] = await Promise.all([qRes.json(), cRes.json()]);
-      setQueue(qData.tokens || []);
-      setHistory(cData.consultations || []);
-      setAvgDuration(cData.avgDuration || 10);
-    } catch { toast.error('Failed to load queue'); }
-    finally { setIsLoading(false); }
+    const qRes = await fetch('/api/tokens', {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    });
+    if (!qRes.ok) throw new Error('Failed to fetch queue');
+    const qData = await qRes.json();
+    setQueue(qData.tokens || []);
   }, [token]);
 
-  useEffect(() => { fetchQueue(); }, [fetchQueue]);
+  const fetchHistoryOnly = useCallback(async () => {
+    if (!token) return;
+    const cRes = await fetch('/api/consultations', {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    });
+    if (!cRes.ok) throw new Error('Failed to fetch consultations');
+    const cData = await cRes.json();
+    setHistory(cData.consultations || []);
+    setAvgDuration(cData.avgDuration || 10);
+  }, [token]);
+
+  const fetchData = useCallback(async () => {
+    if (!token) return;
+    try {
+      await Promise.all([fetchQueueOnly(), fetchHistoryOnly()]);
+    } catch {
+      toast.error('Failed to load queue');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [token, fetchQueueOnly, fetchHistoryOnly]);
+
+  const upsertQueueToken = useCallback((incoming: Token) => {
+    if (!incoming?._id) return;
+    const tokenDoctorId = typeof incoming.doctorId === 'object' ? incoming.doctorId._id : incoming.doctorId;
+    const isMyToken = tokenDoctorId === user?.id;
+    setQueue((prev) => {
+      if (!isMyToken) {
+        return prev.filter((item) => item._id !== incoming._id);
+      }
+      const next = prev.some((item) => item._id === incoming._id)
+        ? prev.map((item) => (item._id === incoming._id ? incoming : item))
+        : [...prev, incoming];
+      return next;
+    });
+    setSelected((prev) => {
+      if (!prev || prev._id !== incoming._id) return prev;
+      if (!isMyToken) return null;
+      if (incoming.status === 'done' || incoming.status === 'cancelled') return null;
+      return incoming;
+    });
+  }, [user?.id]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   useEffect(() => {
     if (!socket) return;
-    const refresh = () => fetchQueue();
-    socket.on('token_updated', refresh);
-    socket.on('queue_updated', refresh);
-    return () => { socket.off('token_updated', refresh); socket.off('queue_updated', refresh); };
-  }, [socket, fetchQueue]);
+
+    const handleTokenUpdated = (incoming: Token) => {
+      upsertQueueToken(incoming);
+    };
+
+    const handleTokenCreated = (incoming: Token) => {
+      upsertQueueToken(incoming);
+    };
+
+    const handleDoctorCalledNext = (payload: { token?: Token }) => {
+      if (payload?.token) upsertQueueToken(payload.token);
+    };
+
+    const handleQueueUpdated = () => {
+      fetchQueueOnly().catch(() => {});
+    };
+
+    const handleConsultationCompleted = () => {
+      fetchHistoryOnly().catch(() => {});
+    };
+
+    socket.on('token_updated', handleTokenUpdated);
+    socket.on('token_created', handleTokenCreated);
+    socket.on('doctor_called_next', handleDoctorCalledNext);
+    socket.on('queue_updated', handleQueueUpdated);
+    socket.on('consultation_completed', handleConsultationCompleted);
+    return () => {
+      socket.off('token_updated', handleTokenUpdated);
+      socket.off('token_created', handleTokenCreated);
+      socket.off('doctor_called_next', handleDoctorCalledNext);
+      socket.off('queue_updated', handleQueueUpdated);
+      socket.off('consultation_completed', handleConsultationCompleted);
+    };
+  }, [socket, upsertQueueToken, fetchQueueOnly, fetchHistoryOnly]);
 
   /* timer ------------------------------------------------------------------- */
   useEffect(() => {
@@ -173,7 +242,7 @@ export default function DoctorDashboard() {
       if (res.ok) {
         toast.success(`${selected.patientName} marked absent — skipped.`);
         setSelected(null); setTimerStart(null);
-        fetchQueue();
+        fetchQueueOnly().catch(() => {});
       } else toast.error('Failed to skip');
     } catch { toast.error('Network error'); }
     setIsSkipping(false);
@@ -199,7 +268,8 @@ export default function DoctorDashboard() {
         toast.success('Consultation saved!');
         setSelected(null); setTimerStart(null);
         setDiagnosis(''); setMedicines([newRow()]); setNotes('');
-        fetchQueue();
+        fetchQueueOnly().catch(() => {});
+        fetchHistoryOnly().catch(() => {});
       } else toast.error('Failed to save');
     } catch { toast.error('Network error'); }
     setIsSubmitting(false);

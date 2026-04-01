@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import { Server as SocketIOServer } from 'socket.io';
 import mongoose from 'mongoose';
 import { sortQueueForDoctor } from '@/lib/queue-sort';
-import { sendWaitWindowNotifications } from '@/lib/queue-notifications';
+import { sendTokenCreatedNotifications, sendWaitWindowNotifications } from '@/lib/queue-notifications';
 
 function getIO(): SocketIOServer | undefined {
   return (global as { io?: SocketIOServer }).io;
@@ -163,6 +163,18 @@ export async function POST(req: NextRequest) {
     }
 
     try {
+      await sendTokenCreatedNotifications({
+        actorRole: user.role,
+        date: today,
+        doctorId: String(doctorId),
+        token: {
+          _id: String(token._id),
+          tokenNumber,
+          patientName,
+          patientId,
+          bookedById,
+        },
+      });
       await sendWaitWindowNotifications(today, String(doctorId));
     } catch (notifyError) {
       console.error('[Tokens POST Notifications]', notifyError);

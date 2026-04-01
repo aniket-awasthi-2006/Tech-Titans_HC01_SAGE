@@ -64,40 +64,97 @@ export default function ReceptionDashboard() {
   const [avgDuration, setAvgDuration] = useState(10);
   const [isLoading, setIsLoading] = useState(true);
 
+  const fetchTokensOnly = useCallback(async () => {
+    if (!token) return;
+    const tokensRes = await fetch('/api/tokens', {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    });
+    if (!tokensRes.ok) throw new Error('Failed to fetch tokens');
+    const tokensData = await tokensRes.json();
+    setTokens(tokensData.tokens || []);
+  }, [token]);
+
+  const fetchDoctorsOnly = useCallback(async () => {
+    if (!token) return;
+    const docRes = await fetch('/api/users?role=doctor', {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    });
+    if (!docRes.ok) throw new Error('Failed to fetch doctors');
+    const docData = await docRes.json();
+    setDoctors(docData.users || []);
+  }, [token]);
+
+  const fetchAvgDurationOnly = useCallback(async () => {
+    if (!token) return;
+    const consultRes = await fetch('/api/consultations', {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    });
+    if (!consultRes.ok) throw new Error('Failed to fetch consultations');
+    const consultData = await consultRes.json();
+    setAvgDuration(consultData.avgDuration || 10);
+  }, [token]);
+
   const fetchData = useCallback(async () => {
     if (!token) return;
     try {
-      const [tokensRes, docRes, consultRes] = await Promise.all([
-        fetch('/api/tokens', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('/api/users?role=doctor', { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('/api/consultations', { headers: { Authorization: `Bearer ${token}` } }),
-      ]);
-      const [tokensData, docData, consultData] = await Promise.all([
-        tokensRes.json(), docRes.json(), consultRes.json(),
-      ]);
-      setTokens(tokensData.tokens || []);
-      setDoctors(docData.users || []);
-      setAvgDuration(consultData.avgDuration || 10);
-    } catch { toast.error('Failed to fetch data'); }
-    finally { setIsLoading(false); }
-  }, [token]);
+      await Promise.all([fetchTokensOnly(), fetchDoctorsOnly(), fetchAvgDurationOnly()]);
+    } catch {
+      toast.error('Failed to fetch data');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [token, fetchTokensOnly, fetchDoctorsOnly, fetchAvgDurationOnly]);
+
+  const upsertToken = useCallback((incoming: Token) => {
+    setTokens((prev) => {
+      const withoutCurrent = prev.filter((item) => item._id !== incoming._id);
+      return [...withoutCurrent, incoming].sort((a, b) => a.tokenNumber - b.tokenNumber);
+    });
+  }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
   useEffect(() => {
     if (!socket) return;
-    const refresh = () => fetchData();
-    socket.on('token_created', refresh);
-    socket.on('token_updated', refresh);
-    socket.on('queue_updated', refresh);
-    socket.on('doctor_availability_changed', refresh);
-    return () => {
-      socket.off('token_created', refresh);
-      socket.off('token_updated', refresh);
-      socket.off('queue_updated', refresh);
-      socket.off('doctor_availability_changed', refresh);
+
+    const handleTokenCreated = (incoming: Token) => {
+      if (!incoming?._id) return;
+      upsertToken(incoming);
     };
-  }, [socket, fetchData]);
+
+    const handleTokenUpdated = (incoming: Token) => {
+      if (!incoming?._id) return;
+      upsertToken(incoming);
+    };
+
+    const handleQueueUpdated = () => {
+      fetchTokensOnly().catch(() => {});
+      fetchAvgDurationOnly().catch(() => {});
+    };
+
+    const handleDoctorAvailabilityChanged = (payload: { doctorId: string; isAvailable: boolean }) => {
+      if (!payload?.doctorId) return;
+      setDoctors((prev) =>
+        prev.map((doctor) =>
+          doctor._id === payload.doctorId ? { ...doctor, isAvailable: payload.isAvailable } : doctor
+        )
+      );
+    };
+
+    socket.on('token_created', handleTokenCreated);
+    socket.on('token_updated', handleTokenUpdated);
+    socket.on('queue_updated', handleQueueUpdated);
+    socket.on('doctor_availability_changed', handleDoctorAvailabilityChanged);
+    return () => {
+      socket.off('token_created', handleTokenCreated);
+      socket.off('token_updated', handleTokenUpdated);
+      socket.off('queue_updated', handleQueueUpdated);
+      socket.off('doctor_availability_changed', handleDoctorAvailabilityChanged);
+    };
+  }, [socket, upsertToken, fetchTokensOnly, fetchAvgDurationOnly]);
 
   const updateStatus = async (id: string, status: string) => {
     try {
@@ -106,8 +163,21 @@ export default function ReceptionDashboard() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ status }),
       });
-      if (res.ok) toast.success(`Token marked as ${status}`);
-      else toast.error('Failed to update');
+      if (res.ok) {
+        const nextStatus = status as Token['status'];
+        setTokens((prev) =>
+          prev.map((item) =>
+            item._id === id
+              ? {
+                  ...item,
+                  status: nextStatus,
+                  ...(nextStatus !== 'waiting' ? { isPriority: false, priorityMarkedAt: undefined } : {}),
+                }
+              : item
+          )
+        );
+        toast.success(`Token marked as ${status}`);
+      } else toast.error('Failed to update');
     } catch { toast.error('Network error'); }
   };
 
@@ -126,8 +196,18 @@ export default function ReceptionDashboard() {
         body: JSON.stringify({ isPriority: nextPriority }),
       });
       if (res.ok) {
+        setTokens((prev) =>
+          prev.map((item) =>
+            item._id === tokenItem._id
+              ? {
+                  ...item,
+                  isPriority: nextPriority,
+                  priorityMarkedAt: nextPriority ? new Date().toISOString() : undefined,
+                }
+              : item
+          )
+        );
         toast.success(nextPriority ? 'Patient marked as priority' : 'Priority removed');
-        fetchData();
       } else {
         const data = await res.json().catch(() => ({}));
         toast.error(data.error || 'Failed to update priority');
@@ -162,7 +242,11 @@ export default function ReceptionDashboard() {
       });
       if (res.ok) {
         toast.success(`Dr. ${doctor.name} marked as ${!goingUnavailable ? 'available ✅' : 'unavailable 🔴'}`);
-        fetchData();
+        setDoctors((prev) =>
+          prev.map((item) =>
+            item._id === doctor._id ? { ...item, isAvailable: !goingUnavailable } : item
+          )
+        );
       } else toast.error('Failed to update availability');
     } catch { toast.error('Network error'); }
   };
@@ -380,7 +464,10 @@ export default function ReceptionDashboard() {
           doctors={doctors}
           token={token!}
           onClose={() => setShowModal(false)}
-          onCreated={() => { setShowModal(false); fetchData(); }}
+          onCreated={() => {
+            setShowModal(false);
+            fetchTokensOnly().catch(() => {});
+          }}
         />
       )}
     </DashboardLayout>

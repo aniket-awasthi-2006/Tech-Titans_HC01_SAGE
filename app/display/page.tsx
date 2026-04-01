@@ -1,17 +1,20 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { formatWaitTime, calculateWaitTime } from '@/lib/wait-time';
 import { format } from 'date-fns';
 import Image from 'next/image';
 import { Wifi, WifiOff, Clock, Users, CheckCircle2, Timer, Stethoscope } from 'lucide-react';
+import { sortQueueForDoctor } from '@/lib/queue-sort';
 
 interface Token {
   _id: string;
   tokenNumber: number;
   patientName: string;
   status: 'waiting' | 'in-progress' | 'done' | 'cancelled';
+  isPriority?: boolean;
+  priorityMarkedAt?: string;
   doctorId: { _id: string; name: string; specialization?: string } | string;
 }
 
@@ -24,6 +27,33 @@ export default function DisplayPanel() {
   const [currentTime, setCurrentTime] = useState('');
   const [currentDate, setCurrentDate] = useState('');
   const [lastUpdated, setLastUpdated] = useState('');
+  const tokensRef = useRef<Token[]>([]);
+
+  const applyTokens = useCallback((nextTokens: Token[]) => {
+    const sortedTokens = sortQueueForDoctor(nextTokens);
+    tokensRef.current = sortedTokens;
+    setTokens(sortedTokens);
+    setLastUpdated(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+
+    const inProgress = sortedTokens.find((t) => t.status === 'in-progress');
+    setCurrentToken((prev) => {
+      if (inProgress && prev?._id !== inProgress._id) {
+        setAnimateToken(true);
+        setTimeout(() => setAnimateToken(false), 1000);
+      }
+      return inProgress || null;
+    });
+  }, []);
+
+  const upsertToken = useCallback((incoming: Token) => {
+    if (!incoming?._id) return;
+    applyTokens(
+      (() => {
+        const without = tokensRef.current.filter((item) => item._id !== incoming._id);
+        return [...without, incoming];
+      })()
+    );
+  }, [applyTokens]);
 
   const fetchTokens = useCallback(async () => {
     try {
@@ -34,45 +64,42 @@ export default function DisplayPanel() {
       }
       const data = await res.json();
       const allTokens: Token[] = data.tokens || [];
-      setTokens(allTokens);
+      applyTokens(allTokens);
       if (data.avgDuration) setAvgDuration(data.avgDuration);
-      setLastUpdated(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-
-      const inProgress = allTokens.find((t) => t.status === 'in-progress');
-      setCurrentToken((prev) => {
-        if (inProgress && prev?._id !== inProgress._id) {
-          setAnimateToken(true);
-          setTimeout(() => setAnimateToken(false), 1000);
-        }
-        return inProgress || null;
-      });
     } catch (err) {
       console.error('[Display] fetch error:', err);
     }
-  }, []);
+  }, [applyTokens]);
 
   // Socket.io — real-time updates
   useEffect(() => {
     const socket: Socket = io('', {
       path: '/api/socket',
-      transports: ['websocket', 'polling'],
+      transports: ['websocket'],
+      timeout: 5000,
     });
 
     socket.on('connect', () => setIsConnected(true));
     socket.on('disconnect', () => setIsConnected(false));
-    socket.on('token_updated', fetchTokens);
+    socket.on('token_updated', upsertToken);
     socket.on('queue_updated', fetchTokens);
-    socket.on('token_created', fetchTokens);
-    socket.on('doctor_called_next', fetchTokens);
+    socket.on('token_created', upsertToken);
+    socket.on('doctor_called_next', (payload: { token?: Token }) => {
+      if (payload?.token) upsertToken(payload.token);
+      else fetchTokens();
+    });
     socket.on('consultation_completed', fetchTokens);
 
     return () => { socket.disconnect(); };
-  }, [fetchTokens]);
+  }, [fetchTokens, upsertToken]);
 
-  // Initial fetch + polling fallback every 15s
+  // Initial fetch + polling fallback every 8s
   useEffect(() => {
-    fetchTokens();
-    const poll = setInterval(fetchTokens, 15000);
+    const bootstrap = async () => {
+      await fetchTokens();
+    };
+    void bootstrap();
+    const poll = setInterval(fetchTokens, 8000);
     return () => clearInterval(poll);
   }, [fetchTokens]);
 

@@ -60,39 +60,92 @@ export default function PatientDashboard() {
   const [isJoining, setIsJoining]   = useState(false);
   const [animateQueue, setAnimateQueue] = useState(false);
   const [unavailableNotice, setUnavailableNotice] = useState<{ doctorName: string } | null>(null);
+  const allTokensRef = useRef<Token[]>([]);
   // Stable ref so socket handler always has fresh myTokens
   const myTokensRef = useRef<Token[]>([]);
+
+  const applyTokenSnapshot = useCallback((allT: Token[]) => {
+    allTokensRef.current = allT;
+    setAllTokens(allT);
+    const mt = allT.filter((t: Token) =>
+      (t.bookedById === user?.id || t.patientId === user?.id) &&
+      ['waiting', 'in-progress'].includes(t.status)
+    );
+    setMyTokens(mt);
+    myTokensRef.current = mt;
+  }, [user?.id]);
+
+  const fetchTokensOnly = useCallback(async () => {
+    if (!token || !user) return;
+    const tRes = await fetch('/api/tokens', {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    });
+    if (!tRes.ok) throw new Error('Failed to load tokens');
+    const tData = await tRes.json();
+    applyTokenSnapshot(tData.tokens || []);
+  }, [token, user, applyTokenSnapshot]);
+
+  const fetchHistoryOnly = useCallback(async () => {
+    if (!token || !user) return;
+    const consRes = await fetch('/api/consultations', {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    });
+    if (!consRes.ok) throw new Error('Failed to load consultations');
+    const consData = await consRes.json();
+    setHistory(consData.consultations || []);
+    setAvgDuration(consData.avgDuration || 10);
+  }, [token, user]);
+
+  const fetchDoctorsOnly = useCallback(async () => {
+    if (!token || !user) return;
+    const dRes = await fetch('/api/users?role=doctor', {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    });
+    if (!dRes.ok) throw new Error('Failed to load doctors');
+    const dData = await dRes.json();
+    setDoctors(dData.users || []);
+  }, [token, user]);
 
   const fetchData = useCallback(async () => {
     if (!token || !user) return;
     try {
-      const [tRes, consRes, dRes] = await Promise.all([
-        fetch('/api/tokens',            { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('/api/consultations',     { headers: { Authorization: `Bearer ${token}` } }),
-        fetch('/api/users?role=doctor', { headers: { Authorization: `Bearer ${token}` } }),
-      ]);
-      const [tData, consData, dData] = await Promise.all([tRes.json(), consRes.json(), dRes.json()]);
-
-      const allT: Token[] = tData.tokens || [];
-      setAllTokens(allT);
-      const mt = allT.filter((t: Token) =>
-        (t.bookedById === user.id || t.patientId === user.id) &&
-        ['waiting', 'in-progress'].includes(t.status)
-      );
-      setMyTokens(mt);
-      myTokensRef.current = mt;
-      setHistory(consData.consultations || []);
-      setDoctors(dData.users || []);
-      setAvgDuration(consData.avgDuration || 10);
-    } catch { toast.error('Failed to load data'); }
-    finally { setIsPageLoading(false); }
-  }, [token, user]);
+      await Promise.all([fetchTokensOnly(), fetchHistoryOnly(), fetchDoctorsOnly()]);
+    } catch {
+      toast.error('Failed to load data');
+    } finally {
+      setIsPageLoading(false);
+    }
+  }, [token, user, fetchTokensOnly, fetchHistoryOnly, fetchDoctorsOnly]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
   useEffect(() => {
     if (!socket) return;
-    const refresh = () => { setAnimateQueue(true); setTimeout(() => setAnimateQueue(false), 600); fetchData(); };
+
+    const pulseQueue = () => {
+      setAnimateQueue(true);
+      setTimeout(() => setAnimateQueue(false), 600);
+    };
+
+    const upsertToken = (incoming: Token) => {
+      if (!incoming?._id) return;
+      applyTokenSnapshot(
+        (() => {
+          const without = allTokensRef.current.filter((item) => item._id !== incoming._id);
+          return [...without, incoming].sort((a, b) => a.tokenNumber - b.tokenNumber);
+        })()
+      );
+      pulseQueue();
+    };
+
+    const refreshQueue = () => {
+      pulseQueue();
+      fetchTokensOnly().catch(() => {});
+    };
+
     const handleAvailability = ({ doctorId, isAvailable, doctorName }: { doctorId: string; isAvailable: boolean; doctorName: string }) => {
       if (!isAvailable) {
         const affected = myTokensRef.current.some(t => {
@@ -103,15 +156,38 @@ export default function PatientDashboard() {
       } else {
         setUnavailableNotice(null);
       }
-      fetchData();
+      setDoctors((prev) =>
+        prev.map((doctor) =>
+          doctor._id === doctorId ? { ...doctor, isAvailable } : doctor
+        )
+      );
     };
-    ['queue_updated','token_updated','token_created','doctor_called_next','consultation_completed'].forEach(e => socket.on(e, refresh));
+
+    const handleDoctorCalledNext = (payload: { token?: Token }) => {
+      if (payload?.token) upsertToken(payload.token);
+      else refreshQueue();
+    };
+
+    const handleConsultationCompleted = () => {
+      refreshQueue();
+      fetchHistoryOnly().catch(() => {});
+    };
+
+    socket.on('queue_updated', refreshQueue);
+    socket.on('token_updated', upsertToken);
+    socket.on('token_created', upsertToken);
+    socket.on('doctor_called_next', handleDoctorCalledNext);
+    socket.on('consultation_completed', handleConsultationCompleted);
     socket.on('doctor_availability_changed', handleAvailability);
     return () => {
-      ['queue_updated','token_updated','token_created','doctor_called_next','consultation_completed'].forEach(e => socket.off(e, refresh));
+      socket.off('queue_updated', refreshQueue);
+      socket.off('token_updated', upsertToken);
+      socket.off('token_created', upsertToken);
+      socket.off('doctor_called_next', handleDoctorCalledNext);
+      socket.off('consultation_completed', handleConsultationCompleted);
       socket.off('doctor_availability_changed', handleAvailability);
     };
-  }, [socket, fetchData]);
+  }, [socket, applyTokenSnapshot, fetchTokensOnly, fetchHistoryOnly]);
 
   const joinQueue = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,7 +212,17 @@ export default function PatientDashboard() {
       const data = await res.json();
       if (res.ok) {
         toast.success(`Joined queue — Token #${data.token?.tokenNumber}`);
-        setShowJoinModal(false); setJoinForm(defaultJoinForm); fetchData();
+        if (data.token?._id) {
+          applyTokenSnapshot(
+            [...allTokensRef.current.filter((item) => item._id !== data.token._id), data.token].sort(
+              (a, b) => a.tokenNumber - b.tokenNumber
+            )
+          );
+        } else {
+          fetchTokensOnly().catch(() => {});
+        }
+        setShowJoinModal(false);
+        setJoinForm(defaultJoinForm);
       } else { toast.error(data.error || 'Failed to join'); }
     } catch { toast.error('Network error'); }
     setIsJoining(false);
@@ -150,7 +236,14 @@ export default function PatientDashboard() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ status: 'cancelled' }),
       });
-      if (res.ok) { toast.success('You have left the queue.'); fetchData(); }
+      if (res.ok) {
+        toast.success('You have left the queue.');
+        applyTokenSnapshot(
+          allTokensRef.current.map((item) =>
+            item._id === tokenId ? { ...item, status: 'cancelled' } : item
+          )
+        );
+      }
       else {
         const d = await res.json();
         toast.error(d.error || 'Failed to leave queue');

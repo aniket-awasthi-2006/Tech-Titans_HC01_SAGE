@@ -23,11 +23,13 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || '';
     const s = io(socketUrl, {
       path: '/api/socket',
-      transports: ['websocket', 'polling'],
+      transports: ['websocket'],
+      timeout: 5000,
     });
 
     s.on('connect', () => {
       console.log('[Socket.io] Connected:', s.id);
+      setSocket(s);
       setIsConnected(true);
     });
 
@@ -35,8 +37,6 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       console.log('[Socket.io] Disconnected');
       setIsConnected(false);
     });
-
-    setSocket(s);
 
     return () => {
       s.disconnect();
