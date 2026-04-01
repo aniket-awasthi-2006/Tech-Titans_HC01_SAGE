@@ -21,6 +21,7 @@ export interface IToken extends Document {
   status: 'waiting' | 'in-progress' | 'done' | 'cancelled';
   isPriority: boolean;
   priorityMarkedAt?: Date;
+  waitWindowAlertSentAt?: Date;
   calledAt?: Date;
   completedAt?: Date;
   date: string; // YYYY-MM-DD
@@ -50,6 +51,7 @@ const TokenSchema = new Schema<IToken>(
     },
     isPriority: { type: Boolean, default: false },
     priorityMarkedAt: { type: Date },
+    waitWindowAlertSentAt: { type: Date },
     calledAt:    { type: Date },
     completedAt: { type: Date },
     date:        { type: String, required: true },

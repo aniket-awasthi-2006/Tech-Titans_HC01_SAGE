@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import ThemeToggle from '@/components/ui/ThemeToggle';
 import {
   RecaptchaVerifier,
   signInWithPhoneNumber,
@@ -195,10 +194,6 @@ export default function PatientRegister() {
       {/* Invisible reCAPTCHA mount point */}
       <div id="recaptcha-container" />
 
-      <div style={{ position: 'fixed', top: isMobile ? 14 : 24, right: isMobile ? 14 : 24, zIndex: 20 }}>
-        <ThemeToggle />
-      </div>
-
       {/* Back */}
       <Link href="/login" style={{
         position: 'fixed', top: isMobile ? 14 : 24, left: isMobile ? 14 : 24,
@@ -299,7 +294,7 @@ export default function PatientRegister() {
                 {otp.map((digit, i) => (
                   <input
                     key={i}
-                    ref={otpRefs[i]}
+                    ref={(el) => { otpRefs.current[i] = el; }}
                     type="text"
                     inputMode="numeric"
                     maxLength={1}

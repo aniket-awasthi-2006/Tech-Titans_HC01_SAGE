@@ -16,6 +16,36 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Theme Toggle
+
+A global theme toggle is available in the **top-right corner on all pages**.
+
+- `Dark` mode = existing dark UI
+- `Light` mode = light blue palette
+- Preference is saved in local storage (`opd_theme`)
+
+## FCM Notifications Setup
+
+Patient push notifications are enabled for:
+
+- Queue cancellation / absent (missed) updates
+- Reminder when estimated wait reaches **15-20 minutes**
+
+Add these environment variables to `.env.local`:
+
+```env
+NEXT_PUBLIC_FIREBASE_VAPID_KEY=your_web_push_vapid_key
+FIREBASE_PROJECT_ID=your_firebase_project_id
+FIREBASE_CLIENT_EMAIL=your_firebase_service_account_client_email
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+```
+
+Notes:
+
+- `NEXT_PUBLIC_FIREBASE_VAPID_KEY` is required on client side to get browser FCM token.
+- Admin credentials (`FIREBASE_*`) are required server-side to send push notifications.
+- Service worker file used: `public/firebase-messaging-sw.js`
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

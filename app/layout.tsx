@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { SocketProvider } from '@/components/providers/SocketProvider';
+import { NotificationProvider } from '@/components/providers/NotificationProvider';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { Toaster } from 'react-hot-toast';
 
@@ -26,20 +27,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <AuthProvider>
             <SocketProvider>
-              {children}
-              <Toaster
-                position="top-right"
-                toastOptions={{
-                  style: {
-                    background: '#1F2937',
-                    color: '#F9FAFB',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    borderRadius: '12px',
-                    fontFamily: 'Inter, sans-serif',
-                    fontSize: '14px',
-                  },
-                }}
-              />
+              <NotificationProvider>
+                {children}
+                <Toaster
+                  position="top-right"
+                  toastOptions={{
+                    style: {
+                      background: '#1F2937',
+                      color: '#F9FAFB',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      borderRadius: '12px',
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: '14px',
+                    },
+                  }}
+                />
+              </NotificationProvider>
             </SocketProvider>
           </AuthProvider>
         </ThemeProvider>

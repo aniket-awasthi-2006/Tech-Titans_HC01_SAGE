@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import {
   LayoutDashboard, Stethoscope, ClipboardList, Clock, FolderOpen,
-  Building2, LogOut, Users,
+  Building2, LogOut,
 } from 'lucide-react';
 
 const navItems = {

@@ -12,6 +12,7 @@ export interface IUser extends Document {
   hospitalId?: string;
   specialization?: string;
   isAvailable?: boolean;
+  fcmTokens?: string[];
   createdAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
@@ -30,6 +31,7 @@ const UserSchema = new Schema<IUser>(
     hospitalId: { type: String },
     specialization: { type: String },
     isAvailable: { type: Boolean, default: true },
+    fcmTokens: { type: [String], default: [] },
   },
   { timestamps: true }
 );

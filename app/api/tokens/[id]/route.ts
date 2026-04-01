@@ -5,6 +5,7 @@ import Consultation from '@/models/Consultation';
 import { getTokenFromRequest } from '@/lib/auth';
 import { format } from 'date-fns';
 import { Server as SocketIOServer } from 'socket.io';
+import { sendCancellationNotifications, sendWaitWindowNotifications } from '@/lib/queue-notifications';
 
 function getIO(): SocketIOServer | undefined {
   return (global as { io?: SocketIOServer }).io;
@@ -106,6 +107,29 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<Para
       }
       io.emit('queue_updated', { date: token.date, previousStatus });
       io.emit('wait_time_updated', { date: token.date });
+    }
+
+    try {
+      const doctorId = token.doctorId?.toString?.() || '';
+      if (status === 'cancelled' && previousStatus !== 'cancelled' && doctorId) {
+        await sendCancellationNotifications({
+          actorRole: user.role,
+          date: token.date,
+          doctorId,
+          previousStatus,
+          token: {
+            _id: id,
+            patientName: token.patientName,
+            patientId: token.patientId,
+            bookedById: token.bookedById,
+          },
+        });
+      }
+      if (doctorId) {
+        await sendWaitWindowNotifications(token.date, doctorId);
+      }
+    } catch (notifyError) {
+      console.error('[Token PATCH Notifications]', notifyError);
     }
 
     return NextResponse.json({ token: updatedToken });
