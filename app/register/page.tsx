@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 import {
   RecaptchaVerifier,
   signInWithPhoneNumber,
@@ -191,6 +192,10 @@ export default function PatientRegister() {
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       fontFamily: 'Inter, system-ui, sans-serif', padding: isMobile ? '16px' : '24px',
     }}>
+      <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 4000 }}>
+        <ThemeToggle />
+      </div>
+
       {/* Invisible reCAPTCHA mount point */}
       <div id="recaptcha-container" />
 

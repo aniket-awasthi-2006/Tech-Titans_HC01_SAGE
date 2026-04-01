@@ -3,9 +3,11 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { useTheme } from '@/components/providers/ThemeProvider';
 import Link from 'next/link';
 import Image from 'next/image';
 import SupportChatbot from '@/components/ui/SupportChatbot';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 const roles = [
   {
@@ -16,6 +18,8 @@ const roles = [
     gradient: 'linear-gradient(135deg, #06B6D4, #0EA5E9)',
     shadow: 'rgba(6,182,212,0.35)',
     border: 'rgba(6,182,212,0.3)',
+    lightShadow: 'rgba(6,182,212,0.24)',
+    lightBorder: 'rgba(6,182,212,0.34)',
     href: '/login/patient',
   },
   {
@@ -26,6 +30,8 @@ const roles = [
     gradient: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
     shadow: 'rgba(99,102,241,0.35)',
     border: 'rgba(99,102,241,0.3)',
+    lightShadow: 'rgba(99,102,241,0.22)',
+    lightBorder: 'rgba(99,102,241,0.3)',
     href: '/login/reception',
   },
   {
@@ -36,13 +42,17 @@ const roles = [
     gradient: 'linear-gradient(135deg, #10B981, #059669)',
     shadow: 'rgba(16,185,129,0.35)',
     border: 'rgba(16,185,129,0.3)',
+    lightShadow: 'rgba(16,185,129,0.2)',
+    lightBorder: 'rgba(16,185,129,0.3)',
     href: '/login/doctor',
   },
 ];
 
 export default function LoginPortal() {
   const { user, isLoading } = useAuth();
+  const { theme } = useTheme();
   const router = useRouter();
+  const isLight = theme === 'light';
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -59,7 +69,7 @@ export default function LoginPortal() {
     <div
       style={{
         minHeight: '100vh',
-        background: 'radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.15) 0%, transparent 60%), #0B0F1A',
+        background: 'var(--auth-bg)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -68,6 +78,10 @@ export default function LoginPortal() {
         fontFamily: 'Inter, system-ui, sans-serif',
       }}
     >
+      <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 4000 }}>
+        <ThemeToggle />
+      </div>
+
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 56 }}>
         <div style={{ margin: '0 auto 20px', width: 96, height: 96 }}>
@@ -77,14 +91,14 @@ export default function LoginPortal() {
           style={{
             fontSize: 'clamp(28px, 5vw, 42px)',
             fontWeight: 900,
-            color: '#F9FAFB',
+            color: 'var(--text-primary)',
             marginBottom: 10,
             letterSpacing: '-0.02em',
           }}
         >
           MediQueue
         </h1>
-        <p style={{ fontSize: 16, color: '#6B7280', maxWidth: 380, margin: '0 auto' }}>
+        <p style={{ fontSize: 16, color: 'var(--text-muted)', maxWidth: 380, margin: '0 auto' }}>
           Real-time hospital queue management. Select your role to continue.
         </p>
       </div>
@@ -102,26 +116,26 @@ export default function LoginPortal() {
         {roles.map((role) => (
           <Link key={role.key} href={role.href} style={{ textDecoration: 'none' }}>
             <div
-              style={{
-                padding: 32,
-                borderRadius: 20,
-                background: 'rgba(255,255,255,0.04)',
-                border: `1px solid ${role.border}`,
-                cursor: 'pointer',
-                transition: 'all 0.25s ease',
-                textAlign: 'center',
+                style={{
+                  padding: 32,
+                  borderRadius: 20,
+                  background: isLight ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${isLight ? role.lightBorder : role.border}`,
+                  cursor: 'pointer',
+                  transition: 'all 0.25s ease',
+                  textAlign: 'center',
                 position: 'relative',
                 overflow: 'hidden',
               }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-6px)';
-                (e.currentTarget as HTMLDivElement).style.boxShadow = `0 20px 60px ${role.shadow}`;
-                (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.07)';
+                (e.currentTarget as HTMLDivElement).style.boxShadow = `0 20px 60px ${isLight ? role.lightShadow : role.shadow}`;
+                (e.currentTarget as HTMLDivElement).style.background = isLight ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.07)';
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
                 (e.currentTarget as HTMLDivElement).style.boxShadow = 'none';
-                (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.04)';
+                (e.currentTarget as HTMLDivElement).style.background = isLight ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.04)';
               }}
             >
               {/* Glow BG */}
@@ -159,10 +173,10 @@ export default function LoginPortal() {
                 {role.icon}
               </div>
 
-              <h2 style={{ fontSize: 22, fontWeight: 800, color: '#F9FAFB', marginBottom: 8 }}>
+              <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 8 }}>
                 {role.label}
               </h2>
-              <p style={{ fontSize: 14, color: '#9CA3AF', lineHeight: 1.5, marginBottom: 24 }}>
+              <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 24 }}>
                 {role.desc}
               </p>
 
@@ -187,9 +201,9 @@ export default function LoginPortal() {
         ))}
       </div>
 
-      <p style={{ marginTop: 40, fontSize: 13, color: '#4B5563', textAlign: 'center' }}>
+      <p style={{ marginTop: 40, fontSize: 13, color: 'var(--text-muted)', textAlign: 'center' }}>
         New patient?{' '}
-        <Link href="/register" style={{ color: '#A5B4FC', textDecoration: 'none', fontWeight: 600 }}>
+        <Link href="/register" style={{ color: isLight ? '#1D4ED8' : '#A5B4FC', textDecoration: 'none', fontWeight: 600 }}>
           Register here
         </Link>
       </p>

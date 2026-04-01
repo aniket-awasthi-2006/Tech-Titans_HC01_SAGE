@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import Link from 'next/link';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 export default function ReceptionLogin() {
   const { login } = useAuth();
@@ -23,25 +24,29 @@ export default function ReceptionLogin() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'radial-gradient(ellipse at 70% 10%, rgba(99,102,241,0.22) 0%, transparent 55%), radial-gradient(ellipse at 20% 85%, rgba(139,92,246,0.14) 0%, transparent 50%), #0B0F1A',
+      background: 'var(--auth-bg)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       fontFamily: 'Inter, system-ui, sans-serif',
       padding: '24px',
     }}>
+      <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 4000 }}>
+        <ThemeToggle />
+      </div>
+
       {/* Back link */}
       <Link href="/login" style={{
         position: 'fixed', top: 24, left: 24,
         display: 'flex', alignItems: 'center', gap: 6,
-        color: '#6B7280', fontSize: 14, textDecoration: 'none',
-        background: 'rgba(255,255,255,0.05)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        color: 'var(--text-muted)', fontSize: 14, textDecoration: 'none',
+        background: 'var(--theme-toggle-bg)',
+        border: '1px solid var(--theme-toggle-border)',
         borderRadius: 10, padding: '8px 14px',
         transition: 'all 0.2s',
       }}
         onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#6366F1'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(99,102,241,0.3)'; }}
-        onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = '#6B7280'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(255,255,255,0.08)'; }}
+        onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-muted)'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--theme-toggle-border)'; }}
       >
         ← Back
       </Link>
@@ -56,10 +61,10 @@ export default function ReceptionLogin() {
             fontSize: 36, margin: '0 auto 20px',
             boxShadow: '0 12px 40px rgba(99,102,241,0.5)',
           }}>🏥</div>
-          <h1 style={{ fontSize: 30, fontWeight: 900, color: '#F9FAFB', margin: '0 0 8px', letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: 30, fontWeight: 900, color: 'var(--text-primary)', margin: '0 0 8px', letterSpacing: '-0.02em' }}>
             Reception Portal
           </h1>
-          <p style={{ color: '#6B7280', fontSize: 14, margin: 0 }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: 14, margin: 0 }}>
             Manage tokens, intake forms &amp; the live OPD queue
           </p>
         </div>
@@ -76,15 +81,15 @@ export default function ReceptionLogin() {
 
         {/* Card */}
         <div style={{
-          background: 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(99,102,241,0.25)',
+          background: 'var(--auth-card-bg)',
+          border: '1px solid var(--auth-card-border)',
           borderRadius: 24, padding: '36px 32px',
           backdropFilter: 'blur(20px)',
-          boxShadow: '0 24px 80px rgba(0,0,0,0.4)',
+          boxShadow: '0 24px 80px rgba(2,6,23,0.22)',
         }}>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#9CA3AF', marginBottom: 8, letterSpacing: '0.04em' }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, letterSpacing: '0.04em' }}>
                 STAFF EMAIL
               </label>
               <input
@@ -96,18 +101,18 @@ export default function ReceptionLogin() {
                 style={{
                   width: '100%', boxSizing: 'border-box',
                   padding: '14px 16px', borderRadius: 12,
-                  background: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#F9FAFB', fontSize: 15, outline: 'none',
+                  background: 'var(--input-bg)',
+                  border: '1px solid var(--input-border)',
+                  color: 'var(--input-text)', fontSize: 15, outline: 'none',
                   transition: 'border-color 0.2s',
                 }}
                 onFocus={e => { e.target.style.borderColor = 'rgba(99,102,241,0.7)'; }}
-                onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+                onBlur={e => { e.target.style.borderColor = 'var(--input-border)'; }}
               />
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#9CA3AF', marginBottom: 8, letterSpacing: '0.04em' }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, letterSpacing: '0.04em' }}>
                 PASSWORD
               </label>
               <input
@@ -119,13 +124,13 @@ export default function ReceptionLogin() {
                 style={{
                   width: '100%', boxSizing: 'border-box',
                   padding: '14px 16px', borderRadius: 12,
-                  background: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#F9FAFB', fontSize: 15, outline: 'none',
+                  background: 'var(--input-bg)',
+                  border: '1px solid var(--input-border)',
+                  color: 'var(--input-text)', fontSize: 15, outline: 'none',
                   transition: 'border-color 0.2s',
                 }}
                 onFocus={e => { e.target.style.borderColor = 'rgba(99,102,241,0.7)'; }}
-                onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+                onBlur={e => { e.target.style.borderColor = 'var(--input-border)'; }}
               />
             </div>
 

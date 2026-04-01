@@ -33,9 +33,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   position="top-right"
                   toastOptions={{
                     style: {
-                      background: '#1F2937',
-                      color: '#F9FAFB',
-                      border: '1px solid rgba(255,255,255,0.08)',
+                      background: 'var(--surface-2)',
+                      color: 'var(--text-primary)',
+                      border: '1px solid var(--border-subtle)',
                       borderRadius: '12px',
                       fontFamily: 'Inter, sans-serif',
                       fontSize: '14px',

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import Link from 'next/link';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 export default function PatientLogin() {
   const { login } = useAuth();
@@ -47,6 +48,10 @@ export default function PatientLogin() {
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       fontFamily: 'Inter, system-ui, sans-serif', padding: isMobile ? '16px' : '24px',
     }}>
+      <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 4000 }}>
+        <ThemeToggle />
+      </div>
+
       {/* Back link */}
       <Link href="/login" style={{
         position: 'fixed', top: isMobile ? 14 : 24, left: isMobile ? 14 : 24,
