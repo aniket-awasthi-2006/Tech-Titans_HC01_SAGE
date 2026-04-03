@@ -59,7 +59,7 @@ export default function DoctorLogin() {
             background: 'linear-gradient(135deg, #10B981, #059669)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 36, margin: '0 auto 20px',
-            boxShadow: '0 12px 40px rgba(16,185,129,0.45)',
+            boxShadow: 'var(--shadow-brand-emerald-lg)',
           }}>👨‍⚕️</div>
           <h1 style={{ fontSize: 30, fontWeight: 900, color: 'var(--text-primary)', margin: '0 0 8px', letterSpacing: '-0.02em' }}>
             Doctor Portal
@@ -85,7 +85,7 @@ export default function DoctorLogin() {
           border: '1px solid var(--auth-card-border)',
           borderRadius: 24, padding: '36px 32px',
           backdropFilter: 'blur(20px)',
-          boxShadow: '0 24px 80px rgba(2,6,23,0.22)',
+          boxShadow: 'var(--shadow-surface-lg)',
         }}>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div>
@@ -151,7 +151,7 @@ export default function DoctorLogin() {
                 width: '100%', padding: '15px', borderRadius: 12, border: 'none',
                 background: loading ? 'rgba(16,185,129,0.4)' : 'linear-gradient(135deg, #10B981, #059669)',
                 color: 'white', fontSize: 16, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer',
-                boxShadow: loading ? 'none' : '0 8px 24px rgba(16,185,129,0.45)',
+                boxShadow: loading ? 'none' : 'var(--shadow-brand-emerald-md)',
                 transition: 'all 0.2s', letterSpacing: '0.01em',
               }}
             >

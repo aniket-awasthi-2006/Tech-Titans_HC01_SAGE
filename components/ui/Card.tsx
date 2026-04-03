@@ -70,9 +70,10 @@ export function StatCard({
           </span>
         )}
       </div>
-      <div style={{ fontSize: 28, fontWeight: 700, color: '#F9FAFB', marginBottom: 4 }}>{value}</div>
-      <div style={{ fontSize: 13, fontWeight: 500, color: '#9CA3AF' }}>{title}</div>
-      {subtitle && <div style={{ fontSize: 12, color: '#6B7280', marginTop: 4 }}>{subtitle}</div>}
+      <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{value}</div>
+      <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>{title}</div>
+      {subtitle && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>{subtitle}</div>}
     </div>
   );
 }
+

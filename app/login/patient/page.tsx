@@ -74,7 +74,7 @@ export default function PatientLogin() {
             background: 'linear-gradient(135deg, #06B6D4, #0EA5E9)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: isMobile ? 28 : 36, margin: `0 auto ${isMobile ? 14 : 20}px`,
-            boxShadow: '0 12px 40px rgba(6,182,212,0.35)',
+            boxShadow: 'var(--shadow-brand-cyan-lg)',
           }}>🙋</div>
           <h1 style={{ fontSize: isMobile ? 26 : 30, fontWeight: 900, color: 'var(--text-primary)', margin: '0 0 8px', letterSpacing: '-0.02em' }}>
             Patient Portal
@@ -88,7 +88,7 @@ export default function PatientLogin() {
         <div style={{
           background: 'var(--auth-card-bg)', border: '1px solid var(--auth-card-border)',
           borderRadius: isMobile ? 18 : 24, padding: isMobile ? '22px 18px' : '36px 32px',
-          backdropFilter: 'blur(20px)', boxShadow: '0 24px 80px rgba(0,0,0,0.4)',
+          backdropFilter: 'blur(20px)', boxShadow: 'var(--shadow-surface-lg)',
         }}>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 16 : 20 }}>
             {/* Phone */}

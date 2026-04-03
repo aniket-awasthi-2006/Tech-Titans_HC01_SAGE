@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useTheme } from '@/components/providers/ThemeProvider';
@@ -16,9 +16,11 @@ const roles = [
     icon: '🙋',
     desc: 'Join the queue, track your position & view prescriptions',
     gradient: 'linear-gradient(135deg, #06B6D4, #0EA5E9)',
-    shadow: 'rgba(6,182,212,0.35)',
+    hoverShadow: 'var(--shadow-brand-cyan-md)',
+    lightHoverShadow: '0 18px 40px rgba(14,165,233,0.18)',
+    iconShadow: 'var(--shadow-brand-cyan-md)',
+    pillShadow: 'var(--shadow-brand-cyan-sm)',
     border: 'rgba(6,182,212,0.3)',
-    lightShadow: 'rgba(6,182,212,0.24)',
     lightBorder: 'rgba(6,182,212,0.34)',
     href: '/login/patient',
   },
@@ -28,9 +30,11 @@ const roles = [
     icon: '🏥',
     desc: 'Manage tokens, intake forms & the live OPD queue',
     gradient: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
-    shadow: 'rgba(99,102,241,0.35)',
+    hoverShadow: 'var(--shadow-brand-indigo-md)',
+    lightHoverShadow: '0 18px 40px rgba(37,99,235,0.18)',
+    iconShadow: 'var(--shadow-brand-indigo-md)',
+    pillShadow: 'var(--shadow-brand-indigo-sm)',
     border: 'rgba(99,102,241,0.3)',
-    lightShadow: 'rgba(99,102,241,0.22)',
     lightBorder: 'rgba(99,102,241,0.3)',
     href: '/login/reception',
   },
@@ -40,9 +44,11 @@ const roles = [
     icon: '👨‍⚕️',
     desc: 'View your queue, call patients & write prescriptions',
     gradient: 'linear-gradient(135deg, #10B981, #059669)',
-    shadow: 'rgba(16,185,129,0.35)',
+    hoverShadow: 'var(--shadow-brand-emerald-md)',
+    lightHoverShadow: '0 18px 40px rgba(16,185,129,0.17)',
+    iconShadow: 'var(--shadow-brand-emerald-md)',
+    pillShadow: 'var(--shadow-brand-emerald-sm)',
     border: 'rgba(16,185,129,0.3)',
-    lightShadow: 'rgba(16,185,129,0.2)',
     lightBorder: 'rgba(16,185,129,0.3)',
     href: '/login/doctor',
   },
@@ -53,6 +59,7 @@ export default function LoginPortal() {
   const { theme } = useTheme();
   const router = useRouter();
   const isLight = theme === 'light';
+  const logoTapState = useRef({ count: 0, lastTapAt: 0 });
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -64,6 +71,21 @@ export default function LoginPortal() {
       router.replace(map[user.role] || '/login');
     }
   }, [user, isLoading, router]);
+
+  const handleSecretAdminAccess = () => {
+    const now = Date.now();
+    const withinComboWindow = now - logoTapState.current.lastTapAt <= 900;
+
+    logoTapState.current = {
+      count: withinComboWindow ? logoTapState.current.count + 1 : 1,
+      lastTapAt: now,
+    };
+
+    if (logoTapState.current.count >= 5) {
+      logoTapState.current = { count: 0, lastTapAt: 0 };
+      router.push('/admin');
+    }
+  };
 
   return (
     <div
@@ -82,10 +104,28 @@ export default function LoginPortal() {
         <ThemeToggle />
       </div>
 
-      {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 56 }}>
         <div style={{ margin: '0 auto 20px', width: 96, height: 96 }}>
-          <Image src="/logo.png" alt="MediQueue Logo" width={96} height={96} style={{ borderRadius: 24, boxShadow: '0 12px 40px rgba(99,102,241,0.4)' }} />
+          <button
+            type="button"
+            onClick={handleSecretAdminAccess}
+            aria-label="MediQueue logo"
+            style={{
+              border: 'none',
+              background: 'transparent',
+              padding: 0,
+              cursor: 'pointer',
+              borderRadius: 24,
+            }}
+          >
+            <Image
+              src="/logo.png"
+              alt="MediQueue Logo"
+              width={96}
+              height={96}
+              style={{ borderRadius: 24, boxShadow: 'var(--shadow-brand-indigo-lg)' }}
+            />
+          </button>
         </div>
         <h1
           style={{
@@ -103,7 +143,6 @@ export default function LoginPortal() {
         </p>
       </div>
 
-      {/* Role Cards */}
       <div
         style={{
           display: 'grid',
@@ -116,29 +155,34 @@ export default function LoginPortal() {
         {roles.map((role) => (
           <Link key={role.key} href={role.href} style={{ textDecoration: 'none' }}>
             <div
-                style={{
-                  padding: 32,
-                  borderRadius: 20,
-                  background: isLight ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.04)',
-                  border: `1px solid ${isLight ? role.lightBorder : role.border}`,
-                  cursor: 'pointer',
-                  transition: 'all 0.25s ease',
-                  textAlign: 'center',
+              style={{
+                padding: 32,
+                borderRadius: 20,
+                background: isLight ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.04)',
+                border: `1px solid ${isLight ? role.lightBorder : role.border}`,
+                cursor: 'pointer',
+                transition: 'all 0.25s ease',
+                textAlign: 'center',
                 position: 'relative',
                 overflow: 'hidden',
               }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-6px)';
-                (e.currentTarget as HTMLDivElement).style.boxShadow = `0 20px 60px ${isLight ? role.lightShadow : role.shadow}`;
-                (e.currentTarget as HTMLDivElement).style.background = isLight ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.07)';
+                (e.currentTarget as HTMLDivElement).style.boxShadow = isLight
+                  ? role.lightHoverShadow
+                  : role.hoverShadow;
+                (e.currentTarget as HTMLDivElement).style.background = isLight
+                  ? 'rgba(255,255,255,0.95)'
+                  : 'rgba(255,255,255,0.07)';
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
                 (e.currentTarget as HTMLDivElement).style.boxShadow = 'none';
-                (e.currentTarget as HTMLDivElement).style.background = isLight ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.04)';
+                (e.currentTarget as HTMLDivElement).style.background = isLight
+                  ? 'rgba(255,255,255,0.82)'
+                  : 'rgba(255,255,255,0.04)';
               }}
             >
-              {/* Glow BG */}
               <div
                 style={{
                   position: 'absolute',
@@ -155,7 +199,6 @@ export default function LoginPortal() {
                 }}
               />
 
-              {/* Icon */}
               <div
                 style={{
                   width: 64,
@@ -167,7 +210,7 @@ export default function LoginPortal() {
                   justifyContent: 'center',
                   fontSize: 32,
                   margin: '0 auto 20px',
-                  boxShadow: `0 8px 24px ${role.shadow}`,
+                  boxShadow: role.iconShadow,
                 }}
               >
                 {role.icon}
@@ -191,7 +234,7 @@ export default function LoginPortal() {
                   color: 'white',
                   fontSize: 14,
                   fontWeight: 600,
-                  boxShadow: `0 4px 16px ${role.shadow}`,
+                  boxShadow: role.pillShadow,
                 }}
               >
                 Sign in as {role.label} →
@@ -203,13 +246,15 @@ export default function LoginPortal() {
 
       <p style={{ marginTop: 40, fontSize: 13, color: 'var(--text-muted)', textAlign: 'center' }}>
         New patient?{' '}
-        <Link href="/register" style={{ color: isLight ? '#1D4ED8' : '#A5B4FC', textDecoration: 'none', fontWeight: 600 }}>
+        <Link
+          href="/register"
+          style={{ color: 'var(--text-accent)', textDecoration: 'none', fontWeight: 600 }}
+        >
           Register here
         </Link>
       </p>
 
       <SupportChatbot />
-
     </div>
   );
 }

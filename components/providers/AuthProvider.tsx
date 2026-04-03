@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 interface User {
   id: string;
   name: string;
-  email: string;
+  email: string | null;
   role: 'patient' | 'reception' | 'doctor';
 }
 
@@ -36,13 +36,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('opd_token');
-    const storedUser = localStorage.getItem('opd_user');
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
+    let isMounted = true;
+
+    const restoreSession = async () => {
+      try {
+        const res = await fetch('/api/auth/me', { cache: 'no-store' });
+        if (!res.ok) return;
+
+        const data = await res.json();
+        if (!isMounted || !data?.user) return;
+
+        setUser(data.user);
+        // Keep a non-sensitive sentinel token for legacy fetch guards in UI.
+        setToken('session');
+      } catch {
+        // No-op: unauthenticated session.
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
+    restoreSession();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const login = async (identifier: string, password: string, mode: 'email' | 'phone' = 'email') => {
@@ -58,9 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await res.json();
       if (!res.ok) return { error: data.error || 'Login failed' };
 
-      localStorage.setItem('opd_token', data.token);
-      localStorage.setItem('opd_user', JSON.stringify(data.user));
-      setToken(data.token);
+      setToken('session');
       setUser(data.user);
 
       const redirectMap: Record<string, string> = {
@@ -85,9 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const result = await res.json();
       if (!res.ok) return { error: result.error || 'Registration failed' };
 
-      localStorage.setItem('opd_token', result.token);
-      localStorage.setItem('opd_user', JSON.stringify(result.user));
-      setToken(result.token);
+      setToken('session');
       setUser(result.user);
       router.push('/patient/dashboard');
       return {};
@@ -97,8 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('opd_token');
-    localStorage.removeItem('opd_user');
+    fetch('/api/auth/logout', { method: 'POST' }).catch(() => undefined);
     setToken(null);
     setUser(null);
     router.push('/login');

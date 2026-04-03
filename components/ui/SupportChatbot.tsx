@@ -186,7 +186,7 @@ export default function SupportChatbot() {
           alignItems: 'center',
           justifyContent: 'center',
           cursor: 'pointer',
-          boxShadow: '0 12px 32px rgba(99,102,241,0.45)',
+          boxShadow: 'var(--shadow-brand-indigo-lg)',
         }}
         aria-label="Open support chatbot"
       >
@@ -207,7 +207,7 @@ export default function SupportChatbot() {
             borderRadius: 18,
             display: 'flex',
             flexDirection: 'column',
-            boxShadow: '0 28px 70px rgba(0,0,0,0.55)',
+            boxShadow: 'var(--shadow-surface-xl)',
             overflow: 'hidden',
           }}
         >
@@ -232,14 +232,14 @@ export default function SupportChatbot() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#A5B4FC',
+                  color: 'var(--text-accent)',
                 }}
               >
                 <Bot size={18} />
               </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#F9FAFB' }}>Help & Support</div>
-                <div style={{ fontSize: 11, color: '#9CA3AF' }}>Complaint Assistant</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>Help & Support</div>
+                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Complaint Assistant</div>
               </div>
             </div>
             <button
@@ -250,7 +250,7 @@ export default function SupportChatbot() {
                 borderRadius: 8,
                 border: '1px solid rgba(255,255,255,0.14)',
                 background: 'rgba(255,255,255,0.04)',
-                color: '#9CA3AF',
+                color: 'var(--text-secondary)',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -271,7 +271,7 @@ export default function SupportChatbot() {
                   maxWidth: '88%',
                   fontSize: 13,
                   lineHeight: 1.55,
-                  color: message.sender === 'bot' ? '#D1D5DB' : '#FFFFFF',
+                  color: message.sender === 'bot' ? 'var(--text-secondary)' : '#FFFFFF',
                   background: message.sender === 'bot' ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #6366F1, #8B5CF6)',
                   border: message.sender === 'bot' ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(165,180,252,0.4)',
                   borderRadius: 12,
@@ -321,7 +321,7 @@ export default function SupportChatbot() {
                   borderRadius: 10,
                   border: '1px solid rgba(255,255,255,0.12)',
                   background: 'rgba(255,255,255,0.05)',
-                  color: '#F9FAFB',
+                  color: 'var(--text-primary)',
                   fontSize: 13,
                   outline: 'none',
                 }}
@@ -373,3 +373,4 @@ export default function SupportChatbot() {
     </>
   );
 }
+

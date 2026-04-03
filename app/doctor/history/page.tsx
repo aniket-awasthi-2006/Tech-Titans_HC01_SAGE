@@ -32,7 +32,7 @@ const RELATIONSHIP_COLORS: Record<string, string> = {
   parent:  '#F59E0B',
   child:   '#22C55E',
   sibling: '#06B6D4',
-  other:   '#9CA3AF',
+  other:   'var(--text-secondary)',
 };
 
 export default function DoctorHistoryPage() {
@@ -79,7 +79,7 @@ export default function DoctorHistoryPage() {
           ].map(s => (
             <div key={s.label} style={{ flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: '14px 16px' }}>
               <div style={{ fontSize: 22, fontWeight: 800, color: s.color }}>{s.value}</div>
-              <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{s.label}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -88,7 +88,7 @@ export default function DoctorHistoryPage() {
         <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
           {['all', 'self', 'spouse', 'parent', 'child', 'sibling', 'other'].map(rel => {
             const isActive = relFilter === rel;
-            const color = rel === 'all' ? '#6366F1' : (RELATIONSHIP_COLORS[rel] || '#9CA3AF');
+            const color = rel === 'all' ? '#6366F1' : (RELATIONSHIP_COLORS[rel] || 'var(--text-secondary)');
             return (
               <button
                 key={rel}
@@ -97,7 +97,7 @@ export default function DoctorHistoryPage() {
                   padding: '5px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer',
                   border: isActive ? `1.5px solid ${color}60` : '1px solid rgba(255,255,255,0.08)',
                   background: isActive ? `${color}18` : 'rgba(255,255,255,0.03)',
-                  color: isActive ? color : '#6B7280',
+                  color: isActive ? color : 'var(--text-muted)',
                   transition: 'all 0.15s',
                 }}
               >
@@ -118,16 +118,16 @@ export default function DoctorHistoryPage() {
             padding: '13px 16px', borderRadius: 12,
             background: 'rgba(255,255,255,0.05)',
             border: '1px solid rgba(255,255,255,0.1)',
-            color: '#F9FAFB', fontSize: 14, outline: 'none',
+            color: 'var(--text-primary)', fontSize: 14, outline: 'none',
           }}
         />
 
         {isLoading ? (
-          <div style={{ textAlign: 'center', padding: 60, color: '#6B7280' }}>Loading…</div>
+          <div style={{ textAlign: 'center', padding: 60, color: 'var(--text-muted)' }}>Loading…</div>
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 60 }}>
             <div style={{ fontSize: 56, marginBottom: 16 }}>📋</div>
-            <p style={{ color: '#6B7280' }}>{search ? 'No results.' : 'No consultations yet.'}</p>
+            <p style={{ color: 'var(--text-muted)' }}>{search ? 'No results.' : 'No consultations yet.'}</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -154,7 +154,7 @@ export default function DoctorHistoryPage() {
                     <div style={{ fontSize: 18, fontWeight: 800, color: relColor, minWidth: 36 }}>#{i + 1}</div>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: '#F9FAFB' }}>{c.patientName}</div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{c.patientName}</div>
                         <span style={{
                           fontSize: 10, fontWeight: 700, padding: '1px 7px', borderRadius: 12,
                           background: `${relColor}20`, color: relColor, border: `1px solid ${relColor}30`,
@@ -162,7 +162,7 @@ export default function DoctorHistoryPage() {
                           {RELATIONSHIP_LABELS[rel] || rel}
                         </span>
                       </div>
-                      <div style={{ fontSize: 13, color: '#9CA3AF', marginTop: 2 }}>🩺 {c.diagnosis}</div>
+                      <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>🩺 {c.diagnosis}</div>
                       {bookedBy && rel !== 'self' && (
                         <div style={{ fontSize: 11, color: '#6366F1', marginTop: 2 }}>
                           👤 Booked by: {bookedBy}
@@ -170,18 +170,18 @@ export default function DoctorHistoryPage() {
                       )}
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                      <div style={{ fontSize: 12, color: '#6B7280' }}>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                         {new Date(c.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </div>
-                      {c.duration && <div style={{ fontSize: 11, color: '#4B5563', marginTop: 2 }}>⏱ {c.duration}m</div>}
+                      {c.duration && <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>⏱ {c.duration}m</div>}
                     </div>
-                    <div style={{ color: '#6B7280', fontSize: 18 }}>{isOpen ? '▲' : '▼'}</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: 18 }}>{isOpen ? '▲' : '▼'}</div>
                   </div>
 
                   {/* Expanded detail */}
                   {isOpen && (
                     <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-                      <DetailBlock label="💊 Prescription" value={c.prescription} color="#A5B4FC" />
+                      <DetailBlock label="💊 Prescription" value={c.prescription} color="var(--text-accent)" />
                       {c.notes && <DetailBlock label="📝 Doctor's Notes" value={c.notes} color="#FCD34D" bg="rgba(245,158,11,0.08)" border="rgba(245,158,11,0.2)" />}
                     </div>
                   )}
@@ -199,7 +199,8 @@ function DetailBlock({ label, value, color, bg = 'rgba(255,255,255,0.04)', borde
   return (
     <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 10, padding: '12px 14px' }}>
       <div style={{ fontSize: 11, fontWeight: 700, color, letterSpacing: '0.05em', marginBottom: 6 }}>{label}</div>
-      <div style={{ fontSize: 14, color: '#D1D5DB', lineHeight: 1.6 }}>{value}</div>
+      <div style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{value}</div>
     </div>
   );
 }
+

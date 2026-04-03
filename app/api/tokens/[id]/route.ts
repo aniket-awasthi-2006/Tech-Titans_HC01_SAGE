@@ -12,6 +12,16 @@ function getIO(): SocketIOServer | undefined {
   return (global as { io?: SocketIOServer }).io;
 }
 
+function getObjectIdString(value: unknown): string | null {
+  if (!value) return null;
+  if (typeof value === 'string') return value;
+  if (typeof value === 'object' && '_id' in (value as Record<string, unknown>)) {
+    const maybeId = (value as { _id?: unknown })._id;
+    return typeof maybeId === 'string' ? maybeId : null;
+  }
+  return null;
+}
+
 type Params = { id: string };
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<Params> }) {
@@ -30,6 +40,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<Para
     const token = await Token.findById(id);
     if (!token) return NextResponse.json({ error: 'Token not found' }, { status: 404 });
     const previousDoctorId = token.doctorId?.toString?.() || '';
+    if (user.role === 'doctor' && previousDoctorId !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const hasEditableFieldUpdate =
       typeof patientName !== 'undefined' ||
@@ -279,6 +292,22 @@ export async function GET(req: NextRequest, { params }: { params: Promise<Params
       .lean();
 
     if (!token) return NextResponse.json({ error: 'Token not found' }, { status: 404 });
+
+    const doctorId = getObjectIdString((token as { doctorId?: unknown }).doctorId);
+    const bookedById = getObjectIdString((token as { bookedById?: unknown }).bookedById);
+    const patientId = getObjectIdString((token as { patientId?: unknown }).patientId);
+
+    if (user.role === 'doctor' && doctorId !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    if (user.role === 'patient') {
+      const isOwner = bookedById === user.id || patientId === user.id;
+      if (!isOwner) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+    }
+
     return NextResponse.json({ token });
   } catch (error) {
     console.error('[Token GET]', error);

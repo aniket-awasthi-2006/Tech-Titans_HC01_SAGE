@@ -12,6 +12,10 @@ setServers(['8.8.8.8', '8.8.4.4']);
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'localhost';
 const port = parseInt(process.env.PORT || '3000', 10);
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || `http://${hostname}:${port}`)
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
@@ -30,8 +34,15 @@ app.prepare().then(() => {
 
   const io = new SocketIOServer(httpServer, {
     cors: {
-      origin: '*',
+      origin(origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+          return;
+        }
+        callback(new Error('Origin not allowed by socket CORS policy.'));
+      },
       methods: ['GET', 'POST'],
+      credentials: true,
     },
     path: '/api/socket',
   });

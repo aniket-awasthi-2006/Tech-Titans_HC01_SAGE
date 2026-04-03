@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { signToken } from '@/lib/auth';
+import { setAuthCookie, signToken } from '@/lib/auth';
 
 // Demo users — fallback without MongoDB
 const DEMO_USERS = [
@@ -13,9 +13,9 @@ export async function POST(req: NextRequest) {
   try {
     // Accept either { email, password } or { phone, password }
     const body = await req.json();
-    const { password } = body;
-    const email: string | undefined = body.email;
-    const phone: string | undefined = body.phone;
+    const password = String(body?.password || '');
+    const email: string | undefined = body?.email ? String(body.email).trim().toLowerCase() : undefined;
+    const phone: string | undefined = body?.phone ? String(body.phone).trim() : undefined;
 
     if ((!email && !phone) || !password) {
       return NextResponse.json({ error: 'Phone/email and password are required' }, { status: 400 });
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       // Look up by phone (patients) or email (staff)
       const query = phone
         ? { phone }
-        : { email: email!.toLowerCase() };
+        : { email };
 
       const dbUser = await User.findOne(query);
       if (dbUser) {
@@ -50,8 +50,9 @@ export async function POST(req: NextRequest) {
       console.log('[Auth] MongoDB unavailable, trying demo mode');
     }
 
-    // Demo fallback (email only)
-    if (!user && email) {
+    // Demo fallback (only in local/dev mode)
+    const allowDemoAuth = process.env.NODE_ENV !== 'production' && process.env.ALLOW_DEMO_AUTH !== 'false';
+    if (!user && allowDemoAuth && email) {
       const demo = DEMO_USERS.find(
         u => u.email.toLowerCase() === email.toLowerCase() && u.password === password
       );
@@ -68,10 +69,11 @@ export async function POST(req: NextRequest) {
     }
 
     const token = signToken(user);
-    return NextResponse.json({
-      token,
+    const response = NextResponse.json({
       user: { id: user.id, name: user.name, email: user.email, role: user.role },
     });
+    setAuthCookie(response, token);
+    return response;
   } catch (error) {
     console.error('[Auth Login]', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

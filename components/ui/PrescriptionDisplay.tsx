@@ -36,7 +36,7 @@ const TIMING_CONFIG: Record<string, { color: string; bg: string; border: string;
   'Before Meal': { color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', icon: '🍽️' },
   'After Meal':  { color: '#22C55E', bg: 'rgba(34,197,94,0.12)',  border: 'rgba(34,197,94,0.3)',  icon: '✅' },
   'With Meal':   { color: '#60A5FA', bg: 'rgba(96,165,250,0.12)', border: 'rgba(96,165,250,0.3)', icon: '🥗' },
-  'Any Time':    { color: '#9CA3AF', bg: 'rgba(156,163,175,0.1)', border: 'rgba(156,163,175,0.2)', icon: '🕐' },
+  'Any Time':    { color: 'var(--text-secondary)', bg: 'rgba(156,163,175,0.1)', border: 'rgba(156,163,175,0.2)', icon: '🕐' },
 };
 
 const FREQ_DOTS: Record<string, number> = {
@@ -56,7 +56,7 @@ export default function PrescriptionDisplay({
   /* Fallback — plain text for old / unparseable prescriptions */
   if (meds.length === 0) {
     return (
-      <div style={{ fontSize: 13, color: '#9CA3AF', whiteSpace: 'pre-line', lineHeight: 1.8 }}>
+      <div style={{ fontSize: 13, color: 'var(--text-secondary)', whiteSpace: 'pre-line', lineHeight: 1.8 }}>
         {prescription}
       </div>
     );
@@ -72,7 +72,7 @@ export default function PrescriptionDisplay({
     padding: compact ? '6px 10px' : '8px 14px',
     fontSize: 10,
     fontWeight: 700,
-    color: '#6B7280',
+    color: 'var(--text-muted)',
     letterSpacing: '0.07em',
     textTransform: 'uppercase',
     textAlign: 'left',
@@ -114,14 +114,14 @@ export default function PrescriptionDisplay({
                 </td>
 
                 {/* Medicine name */}
-                <td style={{ ...cellBase, borderBottom: lastBorder, fontWeight: 600, color: '#E5E7EB' }}>
+                <td style={{ ...cellBase, borderBottom: lastBorder, fontWeight: 600, color: 'var(--text-primary)' }}>
                   {med.name}
                 </td>
 
                 {/* Qty */}
                 <td style={{ ...cellBase, borderBottom: lastBorder, textAlign: 'center' }}>
                   <span style={{
-                    display: 'inline-block', fontWeight: 800, color: '#A5B4FC',
+                    display: 'inline-block', fontWeight: 800, color: 'var(--text-accent)',
                     background: 'rgba(99,102,241,0.15)', borderRadius: 6,
                     padding: '2px 8px', fontSize: compact ? 12 : 13,
                   }}>
@@ -160,11 +160,11 @@ export default function PrescriptionDisplay({
                 </td>
 
                 {/* Course / Duration */}
-                <td style={{ ...cellBase, borderBottom: lastBorder, color: '#6B7280' }}>
+                <td style={{ ...cellBase, borderBottom: lastBorder, color: 'var(--text-muted)' }}>
                   {med.duration ? (
                     <span style={{ fontSize: compact ? 11 : 12 }}>📅 {med.duration}</span>
                   ) : (
-                    <span style={{ color: '#374151' }}>—</span>
+                    <span style={{ color: 'var(--text-muted)' }}>—</span>
                   )}
                 </td>
               </tr>
@@ -175,3 +175,4 @@ export default function PrescriptionDisplay({
     </div>
   );
 }
+

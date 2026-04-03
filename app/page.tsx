@@ -44,8 +44,9 @@ export default function Home() {
             margin: '0 auto 16px',
           }}
         />
-        <p style={{ color: '#6B7280', fontSize: 14 }}>Loading MediQueue...</p>
+        <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>Loading MediQueue...</p>
       </div>
     </div>
   );
 }
+

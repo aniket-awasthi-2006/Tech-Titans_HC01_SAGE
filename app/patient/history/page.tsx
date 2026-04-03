@@ -35,7 +35,7 @@ const RELATIONSHIP_COLORS: Record<string, string> = {
   parent:  '#F59E0B',
   child:   '#22C55E',
   sibling: '#06B6D4',
-  other:   '#9CA3AF',
+  other:   'var(--text-secondary)',
 };
 
 export default function PatientHistoryPage() {
@@ -92,7 +92,7 @@ export default function PatientHistoryPage() {
                 padding: '8px 18px', borderRadius: 30, fontSize: 13, fontWeight: 600,
                 border: activeFilter === 'all' ? '1.5px solid rgba(99,102,241,0.6)' : '1px solid rgba(255,255,255,0.1)',
                 background: activeFilter === 'all' ? 'rgba(99,102,241,0.18)' : 'rgba(255,255,255,0.04)',
-                color: activeFilter === 'all' ? '#A5B4FC' : '#9CA3AF', cursor: 'pointer', transition: 'all 0.2s',
+                color: activeFilter === 'all' ? 'var(--text-accent)' : 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s',
               }}
             >
               👥 Everyone ({history.length})
@@ -112,7 +112,7 @@ export default function PatientHistoryPage() {
                     padding: '8px 18px', borderRadius: 30, fontSize: 13, fontWeight: 600,
                     border: isActive ? `1.5px solid ${accent}60` : '1px solid rgba(255,255,255,0.1)',
                     background: isActive ? `${accent}20` : 'rgba(255,255,255,0.04)',
-                    color: isActive ? accent : '#9CA3AF', cursor: 'pointer', transition: 'all 0.2s',
+                    color: isActive ? accent : 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s',
                   }}
                 >
                   {label} · {count}
@@ -132,16 +132,16 @@ export default function PatientHistoryPage() {
             width: '100%', boxSizing: 'border-box', marginBottom: 20,
             padding: '13px 16px', borderRadius: 12,
             background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-            color: '#F9FAFB', fontSize: 14, outline: 'none',
+            color: 'var(--text-primary)', fontSize: 14, outline: 'none',
           }}
         />
 
         {isLoading ? (
-          <div style={{ textAlign: 'center', padding: 60, color: '#6B7280' }}>Loading…</div>
+          <div style={{ textAlign: 'center', padding: 60, color: 'var(--text-muted)' }}>Loading…</div>
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 60 }}>
             <div style={{ fontSize: 56, marginBottom: 16 }}>📋</div>
-            <p style={{ color: '#6B7280', fontSize: 15 }}>
+            <p style={{ color: 'var(--text-muted)', fontSize: 15 }}>
               {search ? 'No results found.' : 'No consultation history yet.'}
             </p>
           </div>
@@ -173,11 +173,11 @@ export default function PatientHistoryPage() {
                       </div>
                       <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ fontSize: 14, fontWeight: 700, color: '#F9FAFB' }}>
+                          <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>
                             {isSelf ? `${c.patientName} (You)` : c.patientName}
                           </span>
                           {c.patientGender && (
-                            <span style={{ fontSize: 11, color: '#6B7280' }}>
+                            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
                               {GENDER_ICONS[c.patientGender]}
                             </span>
                           )}
@@ -186,23 +186,23 @@ export default function PatientHistoryPage() {
                           <span style={{ color: accent, fontWeight: 600, background: `${accent}15`, padding: '1px 8px', borderRadius: 20, fontSize: 11 }}>
                             {RELATIONSHIP_LABELS[rel] || rel}
                           </span>
-                          <span style={{ color: '#4B5563', marginLeft: 8 }}>· {c.doctorName}</span>
+                          <span style={{ color: 'var(--text-muted)', marginLeft: 8 }}>· {c.doctorName}</span>
                         </div>
                       </div>
                     </div>
-                    <div style={{ fontSize: 12, color: '#6B7280', textAlign: 'right', flexShrink: 0 }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)', textAlign: 'right', flexShrink: 0 }}>
                       📅 {new Date(c.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </div>
                   </div>
 
                   {/* Diagnosis */}
                   <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 10, padding: '12px 14px', marginBottom: 10 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', letterSpacing: '0.06em', marginBottom: 6 }}>DIAGNOSIS</div>
-                    <div style={{ fontSize: 15, fontWeight: 600, color: '#E5E7EB' }}>🩺 {c.diagnosis}</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.06em', marginBottom: 6 }}>DIAGNOSIS</div>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)' }}>🩺 {c.diagnosis}</div>
                   </div>
 
                   <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 10, padding: '12px 14px', marginBottom: c.notes ? 10 : 0 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', letterSpacing: '0.06em', marginBottom: 8 }}>PRESCRIPTION</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.06em', marginBottom: 8 }}>PRESCRIPTION</div>
                     <PrescriptionDisplay prescription={c.prescription} />
                   </div>
 
@@ -222,3 +222,4 @@ export default function PatientHistoryPage() {
     </DashboardLayout>
   );
 }
+

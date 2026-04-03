@@ -55,7 +55,7 @@ const RELATIONSHIP_LABELS: Record<string, string> = {
 };
 const RELATIONSHIP_COLORS: Record<string, string> = {
   self: '#6366F1', spouse: '#EC4899', parent: '#F59E0B',
-  child: '#22C55E', sibling: '#06B6D4', other: '#9CA3AF',
+  child: '#22C55E', sibling: '#06B6D4', other: 'var(--text-secondary)',
 };
 
 /* ─── Main Component ─────────────────────────────────────────────────────────── */
@@ -216,11 +216,11 @@ export default function ReceptionDashboard() {
       <div className="glass-card" style={{ marginBottom: 24, padding: '18px 20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
           <ShieldCheck size={16} color="#6366F1" />
-          <h3 style={{ fontSize: 15, fontWeight: 700, color: '#F9FAFB', margin: 0 }}>Doctor Availability</h3>
+          <h3 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Doctor Availability</h3>
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
           {doctors.length === 0 ? (
-            <p style={{ color: '#6B7280', fontSize: 13 }}>No doctors registered.</p>
+            <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>No doctors registered.</p>
           ) : doctors.map(d => {
             const isAvail = d.isAvailable !== false;
             const waitingCount = tokens.filter(t => {
@@ -242,8 +242,8 @@ export default function ReceptionDashboard() {
                   boxShadow: isAvail ? '0 0 6px #22C55E' : '0 0 6px #EF4444',
                 }} />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#F9FAFB' }}>{d.name}</div>
-                  <div style={{ fontSize: 11, color: '#6B7280' }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{d.name}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
                     {d.specialization || 'General'}{waitingCount > 0 ? ` · ${waitingCount} waiting` : ''}
                   </div>
                 </div>
@@ -267,7 +267,7 @@ export default function ReceptionDashboard() {
 
       {/* ── Queue Header ── */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 600, color: '#F9FAFB' }}>Queue — {format(new Date(), 'dd MMM yyyy')}</h2>
+        <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--text-primary)' }}>Queue — {format(new Date(), 'dd MMM yyyy')}</h2>
         <Button onClick={() => setShowModal(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
           <Plus size={15} /> Create Token
         </Button>
@@ -276,9 +276,9 @@ export default function ReceptionDashboard() {
       {/* ── Queue Table ── */}
       <div className="glass-card" style={{ padding: 0, overflowX: 'auto', overflowY: 'hidden' }}>
         {isLoading ? (
-          <div style={{ padding: 40, textAlign: 'center', color: '#6B7280' }}>Loading queue...</div>
+          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>Loading queue...</div>
         ) : tokens.length === 0 ? (
-          <div style={{ padding: 40, textAlign: 'center', color: '#6B7280' }}>
+          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>📋</div>
             <p>No tokens yet today. Create the first one!</p>
           </div>
@@ -307,11 +307,11 @@ export default function ReceptionDashboard() {
                 const patientsAhead = waitingForDoctor.findIndex(w => w._id === t._id);
                 const wait = t.status === 'waiting' ? calculateWaitTime(patientsAhead, avgDuration) : 0;
                 const rel = t.relationship || 'self';
-                const relColor = RELATIONSHIP_COLORS[rel] || '#9CA3AF';
+                const relColor = RELATIONSHIP_COLORS[rel] || 'var(--text-secondary)';
                 return (
                   <tr key={t._id} style={{ opacity: t.status === 'cancelled' ? 0.5 : 1 }}>
                     <td>
-                      <span style={{ fontSize: 18, fontWeight: 700, color: t.status === 'in-progress' ? '#60A5FA' : '#F9FAFB' }}>
+                      <span style={{ fontSize: 18, fontWeight: 700, color: t.status === 'in-progress' ? '#60A5FA' : 'var(--text-primary)' }}>
                         #{t.tokenNumber}
                       </span>
                     </td>
@@ -321,14 +321,14 @@ export default function ReceptionDashboard() {
                         {RELATIONSHIP_LABELS[rel] || rel}
                       </span>
                     </td>
-                    <td style={{ fontSize: 12, color: '#9CA3AF' }}>
+                    <td style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                       {bookedBy ? (
                         <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                           <UserIcon size={12} /> {bookedBy.name}
                         </span>
-                      ) : rel === 'self' ? '—' : <span style={{ color: '#6B7280' }}>Walk-in</span>}
+                      ) : rel === 'self' ? '—' : <span style={{ color: 'var(--text-muted)' }}>Walk-in</span>}
                     </td>
-                    <td style={{ color: '#9CA3AF' }}>{t.patientAge}y</td>
+                    <td style={{ color: 'var(--text-secondary)' }}>{t.patientAge}y</td>
                     <td>
                       <span style={{ color: '#C4B5FD' }}>{doc?.name || 'Unassigned'}</span>
                       {doc && doctors.find(d => d._id === doc._id)?.isAvailable === false && (
@@ -353,11 +353,11 @@ export default function ReceptionDashboard() {
                           <TriangleAlert size={11} /> PRIORITY
                         </span>
                       ) : (
-                        <span style={{ color: '#4B5563', fontSize: 12 }}>-</span>
+                        <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>-</span>
                       )}
                     </td>
                     <td><StatusBadge status={t.status} /></td>
-                    <td style={{ color: '#6B7280', fontSize: 13 }}>
+                    <td style={{ color: 'var(--text-muted)', fontSize: 13 }}>
                       {t.status === 'waiting' ? formatWaitTime(wait) : '—'}
                     </td>
                     <td style={{ minWidth: 240 }}>
@@ -392,7 +392,7 @@ export default function ReceptionDashboard() {
                               display: 'inline-flex',
                               alignItems: 'center',
                               gap: 4,
-                              color: '#A5B4FC',
+                              color: 'var(--text-accent)',
                               border: '1px solid rgba(99,102,241,0.35)',
                               background: 'rgba(99,102,241,0.08)',
                             }}
@@ -536,8 +536,8 @@ function TokenCreateModal({
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal-content" style={{ maxWidth: 560, maxHeight: '92vh', overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
-          <h2 style={{ fontSize: 20, fontWeight: 700, color: '#F9FAFB' }}>Create OPD Token</h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#6B7280', cursor: 'pointer', fontSize: 20 }}>✕</button>
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)' }}>Create OPD Token</h2>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 20 }}>✕</button>
         </div>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
 
@@ -550,28 +550,28 @@ function TokenCreateModal({
               {selectedPatient ? (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.4)', borderRadius: 10, padding: '10px 14px' }}>
                   <div>
-                    <div style={{ fontWeight: 700, color: '#A5B4FC', fontSize: 14 }}>{selectedPatient.name}</div>
-                    <div style={{ fontSize: 12, color: '#6B7280' }}>{selectedPatient.email}{selectedPatient.phone ? ` · ${selectedPatient.phone}` : ''}</div>
+                    <div style={{ fontWeight: 700, color: 'var(--text-accent)', fontSize: 14 }}>{selectedPatient.name}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{selectedPatient.email}{selectedPatient.phone ? ` · ${selectedPatient.phone}` : ''}</div>
                   </div>
-                  <button type="button" onClick={clearPatient} style={{ background: 'none', border: 'none', color: '#6B7280', cursor: 'pointer', fontSize: 18 }}>✕</button>
+                  <button type="button" onClick={clearPatient} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 18 }}>✕</button>
                 </div>
               ) : (
                 <>
                   <div style={{ position: 'relative' }}>
-                    <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#6B7280' }} />
+                    <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                     <input className="input-dark" placeholder="Search by name, email, or phone…" value={searchQuery} onChange={e => handlePatientSearch(e.target.value)} style={{ paddingLeft: 36 }} />
                   </div>
                   {(patientResults.length > 0 || searchLoading) && (
-                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: '#1F2937', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, marginTop: 4, boxShadow: '0 8px 32px rgba(0,0,0,0.4)', overflow: 'hidden' }}>
+                    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: '#1F2937', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, marginTop: 4, boxShadow: 'var(--shadow-surface-lg)', overflow: 'hidden' }}>
                       {searchLoading ? (
-                        <div style={{ padding: '10px 14px', color: '#6B7280', fontSize: 13 }}>Searching…</div>
+                        <div style={{ padding: '10px 14px', color: 'var(--text-muted)', fontSize: 13 }}>Searching…</div>
                       ) : patientResults.map(p => (
                         <div key={p._id} onClick={() => selectPatient(p)}
                           style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)', transition: 'background 0.15s' }}
                           onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.15)')}
                           onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                          <div style={{ fontWeight: 600, color: '#F9FAFB', fontSize: 14 }}>{p.name}</div>
-                          <div style={{ fontSize: 12, color: '#6B7280' }}>{p.email}{p.phone ? ` · ${p.phone}` : ''}</div>
+                          <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: 14 }}>{p.name}</div>
+                          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{p.email}{p.phone ? ` · ${p.phone}` : ''}</div>
                         </div>
                       ))}
                     </div>
@@ -579,7 +579,7 @@ function TokenCreateModal({
                 </>
               )}
             </div>
-            <p style={{ fontSize: 11, color: '#4B5563', marginTop: 4 }}>Link to a registered patient so consultations appear in their history.</p>
+            <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Link to a registered patient so consultations appear in their history.</p>
           </div>
 
           {/* Relationship */}
@@ -600,7 +600,7 @@ function TokenCreateModal({
             </div>
           ) : !selectedPatient ? (
             <div>
-              <label className="form-label">Patient Name * <span style={{ color: '#6B7280', fontWeight: 400 }}>(walk-in)</span></label>
+              <label className="form-label">Patient Name * <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(walk-in)</span></label>
               <input className="input-dark" placeholder="Full Name" value={form.patientName} onChange={e => setForm(f => ({ ...f, patientName: e.target.value }))} required />
             </div>
           ) : null}
@@ -654,11 +654,11 @@ function TokenCreateModal({
 
           {/* Summary */}
           {(selectedPatient || isFamilyMember) && (
-            <div style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 10, padding: '10px 14px', fontSize: 12, color: '#9CA3AF' }}>
-              <span style={{ color: '#A5B4FC', fontWeight: 700 }}>Summary: </span>
+            <div style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 10, padding: '10px 14px', fontSize: 12, color: 'var(--text-secondary)' }}>
+              <span style={{ color: 'var(--text-accent)', fontWeight: 700 }}>Summary: </span>
               {isFamilyMember
-                ? <>Token for <strong style={{ color: '#F9FAFB' }}>{form.familyName || '?'}</strong> ({RELATIONSHIP_LABELS[form.relationship]}){selectedPatient ? <>, under <strong style={{ color: '#A5B4FC' }}>{selectedPatient.name}</strong>&apos;s account</> : ', no linked account'}</>
-                : <>Token for <strong style={{ color: '#F9FAFB' }}>{selectedPatient!.name}</strong> (self)</>
+                ? <>Token for <strong style={{ color: 'var(--text-primary)' }}>{form.familyName || '?'}</strong> ({RELATIONSHIP_LABELS[form.relationship]}){selectedPatient ? <>, under <strong style={{ color: 'var(--text-accent)' }}>{selectedPatient.name}</strong>&apos;s account</> : ', no linked account'}</>
+                : <>Token for <strong style={{ color: 'var(--text-primary)' }}>{selectedPatient!.name}</strong> (self)</>
               }
             </div>
           )}
@@ -744,10 +744,10 @@ function TokenEditModal({
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal-content" style={{ maxWidth: 560, maxHeight: '92vh', overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-          <h2 style={{ fontSize: 20, fontWeight: 700, color: '#F9FAFB', margin: 0 }}>
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
             Edit Token #{tokenItem.tokenNumber}
           </h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#6B7280', cursor: 'pointer', fontSize: 20 }}>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 20 }}>
             ×
           </button>
         </div>
@@ -871,3 +871,4 @@ function TokenEditModal({
     </div>
   );
 }
+

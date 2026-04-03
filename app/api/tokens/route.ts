@@ -13,6 +13,23 @@ function getIO(): SocketIOServer | undefined {
   return (global as { io?: SocketIOServer }).io;
 }
 
+function maskPatientName(name: string) {
+  const safe = String(name || '').trim();
+  if (!safe) return '';
+  const hidden = Math.max(0, Math.min(safe.length - 1, 5));
+  return `${safe.charAt(0)}${'*'.repeat(hidden)}`;
+}
+
+function getObjectIdString(value: unknown): string | null {
+  if (!value) return null;
+  if (typeof value === 'string') return value;
+  if (typeof value === 'object' && '_id' in (value as Record<string, unknown>)) {
+    const maybeId = (value as { _id?: unknown })._id;
+    return typeof maybeId === 'string' ? maybeId : null;
+  }
+  return null;
+}
+
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
@@ -40,6 +57,25 @@ export async function GET(req: NextRequest) {
       .lean();
 
     const tokens = user.role === 'doctor' ? sortQueueForDoctor(rawTokens) : rawTokens;
+    if (user.role === 'patient') {
+      const sanitizedTokens = tokens.map((token) => {
+        const bookedById = getObjectIdString((token as { bookedById?: unknown }).bookedById);
+        const patientId = getObjectIdString((token as { patientId?: unknown }).patientId);
+        const isOwner = bookedById === user.id || patientId === user.id;
+
+        if (isOwner) return token;
+
+        return {
+          ...token,
+          patientName: maskPatientName((token as { patientName?: string }).patientName || ''),
+          patientPhone: undefined,
+          vitals: undefined,
+          bookedById: undefined,
+          patientId: undefined,
+        };
+      });
+      return NextResponse.json({ tokens: sanitizedTokens });
+    }
 
     return NextResponse.json({ tokens });
   } catch (error) {

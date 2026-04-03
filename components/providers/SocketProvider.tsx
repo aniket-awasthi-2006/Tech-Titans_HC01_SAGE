@@ -16,32 +16,38 @@ const SocketContext = createContext<SocketContextType>({
 });
 
 export function SocketProvider({ children }: { children: ReactNode }) {
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-
-  useEffect(() => {
+  const [socket] = useState<Socket | null>(() => {
+    if (typeof window === 'undefined') return null;
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || '';
-    const s = io(socketUrl, {
+    return io(socketUrl, {
       path: '/api/socket',
       transports: ['websocket', 'polling'],
     });
+  });
+  const [isConnected, setIsConnected] = useState(false);
 
-    s.on('connect', () => {
-      console.log('[Socket.io] Connected:', s.id);
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleConnect = () => {
+      console.log('[Socket.io] Connected:', socket.id);
       setIsConnected(true);
-    });
+    };
 
-    s.on('disconnect', () => {
+    const handleDisconnect = () => {
       console.log('[Socket.io] Disconnected');
       setIsConnected(false);
-    });
+    };
 
-    setSocket(s);
+    socket.on('connect', handleConnect);
+    socket.on('disconnect', handleDisconnect);
 
     return () => {
-      s.disconnect();
+      socket.off('connect', handleConnect);
+      socket.off('disconnect', handleDisconnect);
+      socket.disconnect();
     };
-  }, []);
+  }, [socket]);
 
   const emit = (event: string, data?: unknown) => {
     socket?.emit(event, data);

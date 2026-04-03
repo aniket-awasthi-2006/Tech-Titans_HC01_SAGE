@@ -82,7 +82,7 @@ export default function ReceptionDoctorsPage() {
   };
 
   const getColor = (spec?: string) =>
-    spec ? specializationColors[spec] || '#6366F1' : '#6B7280';
+    spec ? specializationColors[spec] || '#6366F1' : 'var(--text-muted)';
 
   return (
     <DashboardLayout title="Doctors" subtitle="Live status of all OPD doctors today" requiredRole="reception">
@@ -99,7 +99,7 @@ export default function ReceptionDoctorsPage() {
             <div key={s.label} style={{ flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 14, padding: '16px 18px' }}>
               <div style={{ fontSize: 20, marginBottom: 6 }}>{s.icon}</div>
               <div style={{ fontSize: 26, fontWeight: 800, color: s.color }}>{s.value}</div>
-              <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{s.label}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -114,16 +114,16 @@ export default function ReceptionDoctorsPage() {
             width: '100%', boxSizing: 'border-box', marginBottom: 20,
             padding: '13px 16px', borderRadius: 12,
             background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-            color: '#F9FAFB', fontSize: 14, outline: 'none',
+            color: 'var(--text-primary)', fontSize: 14, outline: 'none',
           }}
         />
 
         {isLoading ? (
-          <div style={{ textAlign: 'center', padding: 60, color: '#6B7280' }}>Loading doctors…</div>
+          <div style={{ textAlign: 'center', padding: 60, color: 'var(--text-muted)' }}>Loading doctors…</div>
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 60 }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>👨‍⚕️</div>
-            <p style={{ color: '#6B7280' }}>No doctors found.</p>
+            <p style={{ color: 'var(--text-muted)' }}>No doctors found.</p>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 16 }}>
@@ -152,16 +152,16 @@ export default function ReceptionDoctorsPage() {
                       {doc.name.charAt(0)}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 16, fontWeight: 700, color: '#F9FAFB', marginBottom: 2 }}>{doc.name}</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 2 }}>{doc.name}</div>
                       <div style={{ fontSize: 13, color: accentColor, fontWeight: 600 }}>
                         {doc.specialization || 'General'}
                       </div>
-                      <div style={{ fontSize: 11, color: '#4B5563', marginTop: 1 }}>{doc.email}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{doc.email}</div>
                       <Link
                         href={`/display?doctorId=${doc._id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ fontSize: 11, color: '#A5B4FC', marginTop: 6, textDecoration: 'none', display: 'inline-block' }}
+                        style={{ fontSize: 11, color: 'var(--text-accent)', marginTop: 6, textDecoration: 'none', display: 'inline-block' }}
                       >
                         Open Display Board
                       </Link>
@@ -187,7 +187,7 @@ export default function ReceptionDoctorsPage() {
                     ].map((stat, j) => (
                       <div key={j} style={{ flex: 1, textAlign: 'center', padding: '12px 4px', borderRight: j < 2 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
                         <div style={{ fontSize: 22, fontWeight: 800, color: stat.color }}>{stat.value}</div>
-                        <div style={{ fontSize: 10, color: '#6B7280', marginTop: 2 }}>{stat.label}</div>
+                        <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{stat.label}</div>
                       </div>
                     ))}
                   </div>
@@ -207,3 +207,4 @@ function hexToRgb(hex: string): string {
   const b = parseInt(hex.slice(5, 7), 16);
   return `${r}, ${g}, ${b}`;
 }
+

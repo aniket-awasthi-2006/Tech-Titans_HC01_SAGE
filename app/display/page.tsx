@@ -6,7 +6,7 @@ import { formatWaitTime, calculateWaitTime } from '@/lib/wait-time';
 import { format } from 'date-fns';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import { Wifi, WifiOff, Clock, Users, CheckCircle2, Timer, Stethoscope } from 'lucide-react';
+import { Users, CheckCircle2, Timer, Stethoscope } from 'lucide-react';
 
 interface Token {
   _id: string;
@@ -29,12 +29,10 @@ function DisplayPanelContent() {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [displayDoctor, setDisplayDoctor] = useState<DoctorSummary | null>(null);
   const [currentToken, setCurrentToken] = useState<Token | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
   const [animateToken, setAnimateToken] = useState(false);
   const [avgDuration, setAvgDuration] = useState(10);
   const [currentTime, setCurrentTime] = useState('');
   const [currentDate, setCurrentDate] = useState('');
-  const [lastUpdated, setLastUpdated] = useState('');
 
   const fetchTokens = useCallback(async () => {
     try {
@@ -49,7 +47,6 @@ function DisplayPanelContent() {
       setTokens(allTokens);
       setDisplayDoctor(data.doctor || null);
       if (data.avgDuration) setAvgDuration(data.avgDuration);
-      setLastUpdated(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
 
       const inProgress = allTokens.find((t) => t.status === 'in-progress');
       setCurrentToken((prev) => {
@@ -87,8 +84,6 @@ function DisplayPanelContent() {
       fetchTokens();
     };
 
-    socket.on('connect', () => setIsConnected(true));
-    socket.on('disconnect', () => setIsConnected(false));
     socket.on('token_updated', fetchTokens);
     socket.on('queue_updated', fetchTokens);
     socket.on('token_created', fetchTokens);
@@ -152,35 +147,21 @@ function DisplayPanelContent() {
       }}>
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <Image src="/logo.png" alt="MediQueue" width={64} height={64} style={{ borderRadius: 18, boxShadow: '0 4px 20px rgba(99,102,241,0.5)' }} />
+          <Image src="/logo.png" alt="MediQueue" width={64} height={64} style={{ borderRadius: 18, boxShadow: 'var(--shadow-brand-indigo-md)' }} />
           <div>
-            <div style={{ fontSize: 24, fontWeight: 800, color: '#F9FAFB' }}>MediQueue</div>
-            <div style={{ fontSize: 13, color: '#6B7280' }}>{boardTitle}</div>
+            <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--text-primary)' }}>MediQueue</div>
+            <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{boardTitle}</div>
           </div>
         </div>
 
         {/* Clock */}
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 38, fontWeight: 800, color: '#F9FAFB', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em' }}>
+          <div style={{ fontSize: 38, fontWeight: 800, color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em' }}>
             {currentTime}
           </div>
-          <div style={{ fontSize: 13, color: '#9CA3AF' }}>{currentDate}</div>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{currentDate}</div>
         </div>
 
-        {/* Status */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {isConnected ? <Wifi size={16} color="#22C55E" /> : <WifiOff size={16} color="#EF4444" />}
-            <span style={{ fontSize: 14, color: '#9CA3AF', fontWeight: 600 }}>
-              {isConnected ? 'Live' : 'Reconnecting…'}
-            </span>
-          </div>
-          {lastUpdated && (
-            <span style={{ fontSize: 11, color: '#4B5563', display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Clock size={10} /> Updated {lastUpdated}
-            </span>
-          )}
-        </div>
       </div>
 
       {/* ── Main Body ── */}
@@ -191,8 +172,8 @@ function DisplayPanelContent() {
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           padding: '40px 60px', borderRight: '1px solid rgba(255,255,255,0.05)',
         }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Stethoscope size={16} color="#6B7280" /> Now Serving
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Stethoscope size={16} color="var(--text-muted)" /> Now Serving
           </div>
 
           {currentToken ? (
@@ -202,13 +183,13 @@ function DisplayPanelContent() {
                 fontSize: 'clamp(100px, 18vw, 200px)', fontWeight: 900, lineHeight: 1,
                 background: 'linear-gradient(135deg, #6366F1, #8B5CF6, #06B6D4)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-                filter: 'drop-shadow(0 0 40px rgba(99,102,241,0.5))',
+                filter: 'var(--filter-brand-indigo-glow)',
                 marginBottom: 20,
               }}>
                 #{currentToken.tokenNumber}
               </div>
 
-              <div style={{ fontSize: 22, fontWeight: 600, color: '#E5E7EB', marginBottom: 16 }}>
+              <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 16 }}>
                 Please proceed to your doctor
               </div>
 
@@ -224,9 +205,9 @@ function DisplayPanelContent() {
           ) : (
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 100, fontWeight: 900, color: 'rgba(99,102,241,0.12)', lineHeight: 1, marginBottom: 16 }}>—</div>
-              <p style={{ fontSize: 20, color: '#4B5563' }}>No patient currently being seen</p>
+              <p style={{ fontSize: 20, color: 'var(--text-muted)' }}>No patient currently being seen</p>
               {waiting.length > 0 && (
-                <p style={{ fontSize: 16, color: '#6B7280', marginTop: 8 }}>
+                <p style={{ fontSize: 16, color: 'var(--text-muted)', marginTop: 8 }}>
                   {waiting.length} patient{waiting.length > 1 ? 's' : ''} waiting
                 </p>
               )}
@@ -243,18 +224,18 @@ function DisplayPanelContent() {
         }}>
           {/* Up Next header */}
           <div style={{ padding: '24px 24px 12px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 2 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 2 }}>
               📋 Up Next in Queue
             </div>
             <div style={{ fontSize: 28, fontWeight: 800, color: '#F59E0B' }}>
-              {waiting.length} <span style={{ fontSize: 14, fontWeight: 500, color: '#6B7280' }}>waiting</span>
+              {waiting.length} <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-muted)' }}>waiting</span>
             </div>
           </div>
 
           {/* Queue rows */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
             {nextTokens.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: 40, color: '#4B5563', fontSize: 16 }}>
+              <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)', fontSize: 16 }}>
                 🎉 Queue is empty!
               </div>
             ) : (
@@ -268,21 +249,21 @@ function DisplayPanelContent() {
                     border: `1px solid ${idx === 0 ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.05)'}`,
                     transition: 'all 0.3s ease',
                   }}>
-                    <span style={{ fontSize: idx === 0 ? 28 : 22, fontWeight: 800, color: idx === 0 ? '#A5B4FC' : '#6B7280', minWidth: 60, textAlign: 'center' }}>
+                    <span style={{ fontSize: idx === 0 ? 28 : 22, fontWeight: 800, color: idx === 0 ? 'var(--text-accent)' : 'var(--text-muted)', minWidth: 60, textAlign: 'center' }}>
                       #{t.tokenNumber}
                     </span>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: idx === 0 ? 17 : 15, fontWeight: 600, color: idx === 0 ? '#E5E7EB' : '#9CA3AF', marginBottom: 2 }}>
+                      <div style={{ fontSize: idx === 0 ? 17 : 15, fontWeight: 600, color: idx === 0 ? 'var(--text-primary)' : 'var(--text-secondary)', marginBottom: 2 }}>
                         {t.patientName.charAt(0)}{'•'.repeat(Math.min(t.patientName.length - 1, 5))}
                       </div>
                       {doc && (
-                        <div style={{ fontSize: 12, color: '#4B5563', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <div style={{ fontSize: 12, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {doc.name}
                         </div>
                       )}
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                      <div style={{ fontSize: 13, color: idx === 0 ? '#F59E0B' : '#4B5563', fontWeight: 600 }}>
+                      <div style={{ fontSize: 13, color: idx === 0 ? '#F59E0B' : 'var(--text-muted)', fontWeight: 600 }}>
                         ~{formatWaitTime(calculateWaitTime(idx, avgDuration))}
                       </div>
                       {idx === 0 && (
@@ -296,7 +277,7 @@ function DisplayPanelContent() {
               })
             )}
             {waiting.length > 6 && (
-              <div style={{ textAlign: 'center', fontSize: 13, color: '#4B5563', padding: '8px 0' }}>
+              <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-muted)', padding: '8px 0' }}>
                 +{waiting.length - 6} more in queue
               </div>
             )}
@@ -316,7 +297,7 @@ function DisplayPanelContent() {
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {s.icon}
-                  <span style={{ fontSize: 13, color: '#9CA3AF' }}>{s.label}</span>
+                  <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{s.label}</span>
                 </div>
                 <span style={{ fontSize: 20, fontWeight: 800, color: s.color }}>{s.value}</span>
               </div>
@@ -332,11 +313,11 @@ function DisplayPanelContent() {
         borderTop: '1px solid rgba(99,102,241,0.12)',
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 32, flexShrink: 0,
       }}>
-        <span style={{ fontSize: 13, color: '#6B7280' }}>🏥 MediQueue · OPD Queue Management</span>
-        <span style={{ color: '#374151' }}>|</span>
-        <span style={{ fontSize: 13, color: '#9CA3AF' }}>Watch the display for your token number</span>
-        <span style={{ color: '#374151' }}>|</span>
-        <span style={{ fontSize: 13, color: '#6B7280' }}>📞 Emergency: 102</span>
+        <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>🏥 MediQueue · OPD Queue Management</span>
+        <span style={{ color: 'var(--text-muted)' }}>|</span>
+        <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Watch the display for your token number</span>
+        <span style={{ color: 'var(--text-muted)' }}>|</span>
+        <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>📞 Emergency: 102</span>
       </div>
 
       {isDoctorUnavailable && (
@@ -359,13 +340,13 @@ function DisplayPanelContent() {
             textAlign: 'center',
             maxWidth: 560,
             width: '100%',
-            boxShadow: '0 0 70px rgba(239,68,68,0.2), 0 28px 60px rgba(0,0,0,0.6)',
+            boxShadow: 'var(--shadow-danger-xl)',
           }}>
             <div style={{ fontSize: 54, marginBottom: 12 }}>🚨</div>
             <h2 style={{ fontSize: 28, fontWeight: 800, color: '#FCA5A5', margin: '0 0 12px' }}>
               Doctor Is Currently Unavailable
             </h2>
-            <p style={{ fontSize: 16, color: '#D1D5DB', lineHeight: 1.7, margin: 0 }}>
+            <p style={{ fontSize: 16, color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0 }}>
               {displayDoctor?.name || 'Selected doctor'} is currently unavailable.
               Queue updates will resume automatically once the doctor is available again.
             </p>
@@ -385,7 +366,7 @@ function DisplayFallback() {
       alignItems: 'center',
       justifyContent: 'center',
       background: '#0B0F1A',
-      color: '#9CA3AF',
+      color: 'var(--text-secondary)',
       fontFamily: 'Inter, system-ui, sans-serif',
       fontSize: 16,
     }}>
@@ -401,3 +382,4 @@ export default function DisplayPanelPage() {
     </Suspense>
   );
 }
+

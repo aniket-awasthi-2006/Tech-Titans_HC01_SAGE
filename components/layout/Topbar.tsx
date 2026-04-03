@@ -1,7 +1,5 @@
 'use client';
 
-import { useSocket } from '@/components/providers/SocketProvider';
-import { Wifi, WifiOff } from 'lucide-react';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import React from 'react';
 
@@ -11,8 +9,6 @@ interface TopbarProps {
 }
 
 export default function Topbar({ title, subtitle }: TopbarProps) {
-  const { isConnected } = useSocket();
-
   return (
     <div className="topbar">
       <div>
@@ -21,16 +17,6 @@ export default function Topbar({ title, subtitle }: TopbarProps) {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        {/* Real-time status */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          {isConnected
-            ? <Wifi size={15} color="#22C55E" />
-            : <WifiOff size={15} color="#EF4444" />}
-          <span style={{ fontSize: 12, color: isConnected ? '#22C55E' : '#EF4444', fontWeight: 500 }}>
-            {isConnected ? 'Live' : 'Offline'}
-          </span>
-        </div>
-
         {/* Theme toggle */}
         <ThemeToggle compact />
 

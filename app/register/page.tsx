@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import {
@@ -32,7 +31,6 @@ const btnStyle = (active = true): React.CSSProperties => ({
 
 /* ─── Main Component ─────────────────────────────────────────────────────── */
 export default function PatientRegister() {
-  const router = useRouter();
   const [step, setStep] = useState<Step>('details');
 
   // Step 1 — details
@@ -158,10 +156,7 @@ export default function PatientRegister() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Registration failed'); setLoading(false); return; }
-      // Store token using same keys as AuthProvider
-      localStorage.setItem('opd_token', data.token);
-      localStorage.setItem('opd_user', JSON.stringify(data.user));
-      router.replace('/patient/dashboard');
+      window.location.assign('/patient/dashboard');
     } catch {
       setError('Network error. Please try again.');
     }
@@ -237,11 +232,11 @@ export default function PatientRegister() {
                     alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700,
                     background: done ? '#06B6D4' : active ? 'rgba(6,182,212,0.2)' : 'rgba(255,255,255,0.06)',
                     border: `2px solid ${done || active ? '#06B6D4' : 'rgba(255,255,255,0.1)'}`,
-                    color: done ? 'white' : active ? '#06B6D4' : '#6B7280',
+                    color: done ? 'white' : active ? '#06B6D4' : 'var(--text-muted)',
                   }}>
                     {done ? '✓' : i + 1}
                   </div>
-                  <span style={{ fontSize: 11, color: active ? '#06B6D4' : '#6B7280', fontWeight: active ? 700 : 400 }}>
+                  <span style={{ fontSize: 11, color: active ? '#06B6D4' : 'var(--text-muted)', fontWeight: active ? 700 : 400 }}>
                     {s.label}
                   </span>
                 </div>
@@ -257,24 +252,24 @@ export default function PatientRegister() {
         <div style={{
           background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(6,182,212,0.2)',
           borderRadius: 24, padding: '32px 28px',
-          backdropFilter: 'blur(20px)', boxShadow: '0 24px 80px rgba(0,0,0,0.4)',
+          backdropFilter: 'blur(20px)', boxShadow: 'var(--shadow-surface-lg)',
         }}>
 
           {/* ── Step 1: Name + Phone ── */}
           {step === 'details' && (
             <form onSubmit={sendOtp} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#9CA3AF', marginBottom: 8, letterSpacing: '0.06em' }}>FULL NAME</label>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 8, letterSpacing: '0.06em' }}>FULL NAME</label>
                 <input type="text" placeholder="e.g. Arjun Sharma" value={name} onChange={e => setName(e.target.value)} required style={inputStyle}
                   onFocus={e => { e.target.style.borderColor = 'rgba(6,182,212,0.6)'; }}
                   onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#9CA3AF', marginBottom: 8, letterSpacing: '0.06em' }}>PHONE NUMBER</label>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 8, letterSpacing: '0.06em' }}>PHONE NUMBER</label>
                 <input type="tel" placeholder="+91 9876543210" value={phone} onChange={e => setPhone(e.target.value)} required style={inputStyle}
                   onFocus={e => { e.target.style.borderColor = 'rgba(6,182,212,0.6)'; }}
                   onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; }} />
-                <p style={{ fontSize: 11, color: '#4B5563', marginTop: 6 }}>Include country code — e.g. +91 for India</p>
+                <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>Include country code — e.g. +91 for India</p>
               </div>
               {error && <ErrorBox msg={error} />}
               <button type="submit" disabled={loading} style={btnStyle(!loading)}>
@@ -288,9 +283,9 @@ export default function PatientRegister() {
             <form onSubmit={verifyOtp} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 40, marginBottom: 12 }}>📲</div>
-                <p style={{ color: '#9CA3AF', fontSize: 14, lineHeight: 1.6 }}>
+                <p style={{ color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.6 }}>
                   We sent a 6-digit code to<br />
-                  <strong style={{ color: '#F9FAFB' }}>{phone}</strong>
+                  <strong style={{ color: 'var(--text-primary)' }}>{phone}</strong>
                 </p>
               </div>
 
@@ -309,7 +304,7 @@ export default function PatientRegister() {
                     style={{
                       width: 48, height: 56, textAlign: 'center', fontSize: 24, fontWeight: 800,
                       borderRadius: 12, border: `2px solid ${digit ? 'rgba(6,182,212,0.6)' : 'rgba(255,255,255,0.12)'}`,
-                      background: 'rgba(255,255,255,0.06)', color: '#F9FAFB', outline: 'none',
+                      background: 'rgba(255,255,255,0.06)', color: 'var(--text-primary)', outline: 'none',
                       transition: 'border-color 0.15s',
                     }}
                     onFocus={e => { e.target.style.borderColor = 'rgba(6,182,212,0.8)'; }}
@@ -325,17 +320,17 @@ export default function PatientRegister() {
               </button>
 
               {/* Resend */}
-              <p style={{ textAlign: 'center', fontSize: 13, color: '#6B7280' }}>
+              <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-muted)' }}>
                 Didn&apos;t receive it?{' '}
                 {resendTimer > 0 ? (
-                  <span style={{ color: '#4B5563' }}>Resend in {resendTimer}s</span>
+                  <span style={{ color: 'var(--text-muted)' }}>Resend in {resendTimer}s</span>
                 ) : (
                   <button type="button" onClick={resendOtp} disabled={loading} style={{ background: 'none', border: 'none', color: '#06B6D4', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>
                     Resend OTP
                   </button>
                 )}
               </p>
-              <button type="button" onClick={() => setStep('details')} style={{ background: 'none', border: 'none', color: '#6B7280', cursor: 'pointer', fontSize: 13 }}>
+              <button type="button" onClick={() => setStep('details')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 13 }}>
                 ← Change number
               </button>
             </form>
@@ -346,16 +341,16 @@ export default function PatientRegister() {
             <form onSubmit={createAccount} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               <div style={{ textAlign: 'center', marginBottom: 4 }}>
                 <div style={{ fontSize: 40, marginBottom: 10 }}>🔐</div>
-                <p style={{ color: '#9CA3AF', fontSize: 14 }}>Phone verified! Set a password for your account.</p>
+                <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Phone verified! Set a password for your account.</p>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#9CA3AF', marginBottom: 8, letterSpacing: '0.06em' }}>PASSWORD</label>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 8, letterSpacing: '0.06em' }}>PASSWORD</label>
                 <input type="password" placeholder="Min. 6 characters" value={password} onChange={e => setPassword(e.target.value)} required style={inputStyle}
                   onFocus={e => { e.target.style.borderColor = 'rgba(6,182,212,0.6)'; }}
                   onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#9CA3AF', marginBottom: 8, letterSpacing: '0.06em' }}>CONFIRM PASSWORD</label>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 8, letterSpacing: '0.06em' }}>CONFIRM PASSWORD</label>
                 <input type="password" placeholder="Re-enter password" value={confirm} onChange={e => setConfirm(e.target.value)} required style={{
                   ...inputStyle,
                   borderColor: confirm && confirm !== password ? 'rgba(239,68,68,0.5)' : 'rgba(255,255,255,0.1)',
@@ -368,7 +363,7 @@ export default function PatientRegister() {
               </div>
 
               {/* Summary */}
-              <div style={{ background: 'rgba(6,182,212,0.06)', border: '1px solid rgba(6,182,212,0.2)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#9CA3AF' }}>
+              <div style={{ background: 'rgba(6,182,212,0.06)', border: '1px solid rgba(6,182,212,0.2)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: 'var(--text-secondary)' }}>
                 <div><strong style={{ color: '#06B6D4' }}>Name: </strong>{name}</div>
                 <div><strong style={{ color: '#06B6D4' }}>Phone: </strong>{phone} ✅ Verified</div>
               </div>
@@ -381,7 +376,7 @@ export default function PatientRegister() {
           )}
         </div>
 
-        <p style={{ textAlign: 'center', marginTop: 20, fontSize: 13, color: '#4B5563' }}>
+        <p style={{ textAlign: 'center', marginTop: 20, fontSize: 13, color: 'var(--text-muted)' }}>
           Already registered?{' '}
           <Link href="/login/patient" style={{ color: '#06B6D4', textDecoration: 'none', fontWeight: 600 }}>
             Sign in here
@@ -403,3 +398,4 @@ function ErrorBox({ msg }: { msg: string }) {
     </div>
   );
 }
+

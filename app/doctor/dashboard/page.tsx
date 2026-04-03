@@ -15,7 +15,7 @@ import PrescriptionDisplay from '@/components/ui/PrescriptionDisplay';
 /* ─── Relationship Display ─────────────────────────────────────────────────── */
 const RELATIONSHIP_COLORS: Record<string, string> = {
   self: '#6366F1', spouse: '#EC4899', parent: '#F59E0B',
-  child: '#22C55E', sibling: '#06B6D4', other: '#9CA3AF',
+  child: '#22C55E', sibling: '#06B6D4', other: 'var(--text-secondary)',
 };
 const RELATIONSHIP_LABELS: Record<string, string> = {
   self: 'Self', spouse: 'Spouse', parent: 'Parent',
@@ -268,7 +268,7 @@ export default function DoctorDashboard() {
               width: '100%', padding: '18px',
               background: waiting.length > 0 ? 'linear-gradient(135deg, #6366F1, #8B5CF6)' : 'rgba(255,255,255,0.04)',
               border: waiting.length > 0 ? '1.5px solid rgba(165,180,252,0.35)' : '1.5px solid rgba(255,255,255,0.08)',
-              borderRadius: 16, color: waiting.length > 0 ? 'white' : '#4B5563',
+              borderRadius: 16, color: waiting.length > 0 ? 'white' : 'var(--text-muted)',
               fontSize: 18, fontWeight: 700,
               cursor: waiting.length > 0 ? 'pointer' : 'not-allowed', display: 'flex',
               alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'all 0.2s',
@@ -286,7 +286,7 @@ export default function DoctorDashboard() {
               <div key={s.label} className="glass-card" style={{ flex: 1, padding: '12px', textAlign: 'center' }}>
                 <s.Icon size={16} color={s.color} style={{ margin: '0 auto 4px' }} />
                 <div style={{ fontSize: 22, fontWeight: 700, color: s.color }}>{s.val}</div>
-                <div style={{ fontSize: 11, color: '#6B7280' }}>{s.label}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -294,9 +294,9 @@ export default function DoctorDashboard() {
           {/* Queue list */}
           <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
             {isLoading ? (
-              <div style={{ textAlign: 'center', color: '#6B7280', padding: 32 }}>Loading...</div>
+              <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 32 }}>Loading...</div>
             ) : queue.length === 0 ? (
-              <div style={{ textAlign: 'center', color: '#6B7280', padding: 40 }}>
+              <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 40 }}>
                 <Coffee size={36} strokeWidth={1.3} style={{ margin: '0 auto 10px' }} />
                 <p>Queue is empty today</p>
               </div>
@@ -325,7 +325,7 @@ export default function DoctorDashboard() {
                     opacity: t.status === 'cancelled' ? 0.4 : 1,
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                      <span style={{ fontSize: 20, fontWeight: 800, color: isActive ? '#A5B4FC' : '#F9FAFB' }}>
+                      <span style={{ fontSize: 20, fontWeight: 800, color: isActive ? 'var(--text-accent)' : 'var(--text-primary)' }}>
                         #{t.tokenNumber}
                       </span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -353,8 +353,8 @@ export default function DoctorDashboard() {
                         <StatusBadge status={t.status} />
                       </div>
                     </div>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: '#E5E7EB' }}>{t.patientName}</div>
-                    <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{t.patientAge}y</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{t.patientName}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{t.patientAge}y</div>
                     {t.status === 'waiting' && waitPos >= 0 && (
                       <div style={{ fontSize: 12, marginTop: 4, color: '#F59E0B' }}>
                         Wait: {formatWaitTime(calculateWaitTime(waitPos, avgDuration))}
@@ -370,7 +370,7 @@ export default function DoctorDashboard() {
         {/* ── Patient Panel ── */}
         <div className="glass-card" style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {!selected ? (
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 12, color: '#6B7280' }}>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 12, color: 'var(--text-muted)' }}>
               <div style={{ fontSize: 64 }}>👆</div>
               <p style={{ fontSize: 16 }}>Select a patient or call next</p>
             </div>
@@ -381,7 +381,7 @@ export default function DoctorDashboard() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <h2 style={{ fontSize: 22, fontWeight: 700, color: '#F9FAFB' }}>{selected.patientName}</h2>
+                      <h2 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)' }}>{selected.patientName}</h2>
                       {selected.status === 'waiting' && selected.isPriority && (
                         <span style={{
                           display: 'inline-flex',
@@ -401,14 +401,14 @@ export default function DoctorDashboard() {
                       {selected.relationship && selected.relationship !== 'self' && (
                         <span style={{
                           fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 20,
-                          background: `${RELATIONSHIP_COLORS[selected.relationship] || '#9CA3AF'}20`,
-                          color: RELATIONSHIP_COLORS[selected.relationship] || '#9CA3AF',
+                          background: `${RELATIONSHIP_COLORS[selected.relationship] || 'var(--text-secondary)'}20`,
+                          color: RELATIONSHIP_COLORS[selected.relationship] || 'var(--text-secondary)',
                         }}>
                           {RELATIONSHIP_LABELS[selected.relationship] || selected.relationship}
                         </span>
                       )}
                     </div>
-                    <p style={{ fontSize: 13, color: '#9CA3AF' }}>
+                    <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
                       {selected.patientAge}y old · Token #{selected.tokenNumber}
                     </p>
                     {selected.relationship !== 'self' && (
@@ -452,7 +452,7 @@ export default function DoctorDashboard() {
                     <button key={tab} onClick={() => setActiveTab(tab)} style={{
                       padding: '6px 16px', borderRadius: 8, border: 'none', textTransform: 'capitalize',
                       background: activeTab === tab ? 'rgba(99,102,241,0.2)' : 'transparent',
-                      color: activeTab === tab ? '#A5B4FC' : '#6B7280',
+                      color: activeTab === tab ? 'var(--text-accent)' : 'var(--text-muted)',
                       fontSize: 13, fontWeight: 600, cursor: 'pointer',
                     }}>
                       {tab}
@@ -467,15 +467,15 @@ export default function DoctorDashboard() {
                 {activeTab === 'history' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     {selected.relationship && selected.relationship !== 'self' && (
-                      <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 10, padding: '10px 14px', fontSize: 12, color: '#9CA3AF', marginBottom: 4 }}>
-                        <span style={{ color: '#A5B4FC', fontWeight: 700 }}>
+                      <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 10, padding: '10px 14px', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
+                        <span style={{ color: 'var(--text-accent)', fontWeight: 700 }}>
                           {selected.patientName}
                         </span>{' '}
                         · Showing history for {selected.patientName} ({RELATIONSHIP_LABELS[selected.relationship]}) and family.
                       </div>
                     )}
                     {getPatientHistory(selected).length === 0 ? (
-                      <p style={{ color: '#6B7280' }}>No past consultations for this patient.</p>
+                      <p style={{ color: 'var(--text-muted)' }}>No past consultations for this patient.</p>
                     ) : (
                       getPatientHistory(selected).map(c => {
                         const rel = c.relationship || 'self';
@@ -484,21 +484,21 @@ export default function DoctorDashboard() {
                           <div key={c._id} className="glass-card" style={{ padding: 16 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <span style={{ fontSize: 13, fontWeight: 700, color: '#F9FAFB' }}>{c.patientName}</span>
+                                <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{c.patientName}</span>
                                 <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 12, background: `${relColor}20`, color: relColor }}>
                                   {RELATIONSHIP_LABELS[rel] || rel}
                                 </span>
                               </div>
                               <div style={{ textAlign: 'right' }}>
-                                <span style={{ fontSize: 12, color: '#6B7280' }}>
+                                <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                                   {new Date(c.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                                 </span>
-                                {c.duration && <div style={{ fontSize: 11, color: '#4B5563' }}>⏱ {c.duration}m</div>}
+                                {c.duration && <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>⏱ {c.duration}m</div>}
                               </div>
                             </div>
-                            <div style={{ fontSize: 14, fontWeight: 600, color: '#E5E7EB', marginBottom: 8 }}>🩺 {c.diagnosis}</div>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>🩺 {c.diagnosis}</div>
                             <div style={{ marginBottom: c.notes ? 8 : 0 }}>
-                              <div style={{ fontSize: 10, fontWeight: 700, color: '#6B7280', letterSpacing: '0.06em', marginBottom: 6 }}>PRESCRIPTION</div>
+                              <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.06em', marginBottom: 6 }}>PRESCRIPTION</div>
                               <PrescriptionDisplay prescription={c.prescription} compact />
                             </div>
                             {c.notes && (
@@ -532,7 +532,7 @@ export default function DoctorDashboard() {
                         <button type="button" onClick={addMed} style={{
                           display: 'flex', alignItems: 'center', gap: 5,
                           padding: '5px 12px', borderRadius: 8, border: '1px solid rgba(99,102,241,0.4)',
-                          background: 'rgba(99,102,241,0.12)', color: '#A5B4FC',
+                          background: 'rgba(99,102,241,0.12)', color: 'var(--text-accent)',
                           fontSize: 12, fontWeight: 600, cursor: 'pointer',
                         }}>
                           <Plus size={13} /> Add Medicine
@@ -547,7 +547,7 @@ export default function DoctorDashboard() {
                         padding: '0 4px',
                       }}>
                         {['Medicine / Dose', 'Qty', 'Freq', 'Timing', 'Course', ''].map(h => (
-                          <div key={h} style={{ fontSize: 10, fontWeight: 700, color: '#6B7280', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{h}</div>
+                          <div key={h} style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{h}</div>
                         ))}
                       </div>
 
@@ -611,7 +611,7 @@ export default function DoctorDashboard() {
                               disabled={medicines.length === 1}
                               style={{
                                 background: 'none', border: 'none', cursor: medicines.length === 1 ? 'not-allowed' : 'pointer',
-                                color: medicines.length === 1 ? '#374151' : '#EF4444',
+                                color: medicines.length === 1 ? 'var(--text-muted)' : '#EF4444',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 padding: 4, borderRadius: 6,
                               }}
@@ -625,8 +625,8 @@ export default function DoctorDashboard() {
                       {/* Preview */}
                       {medicines.some(r => r.name.trim()) && (
                         <div style={{ marginTop: 10, background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 10, padding: '10px 14px' }}>
-                          <div style={{ fontSize: 10, fontWeight: 700, color: '#6B7280', letterSpacing: '0.06em', marginBottom: 6 }}>PRESCRIPTION PREVIEW</div>
-                          <pre style={{ fontSize: 12, color: '#D1D5DB', whiteSpace: 'pre-wrap', fontFamily: 'inherit', margin: 0, lineHeight: 1.7 }}>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.06em', marginBottom: 6 }}>PRESCRIPTION PREVIEW</div>
+                          <pre style={{ fontSize: 12, color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', fontFamily: 'inherit', margin: 0, lineHeight: 1.7 }}>
                             {serializeMedicines(medicines)}
                           </pre>
                         </div>
@@ -647,7 +647,7 @@ export default function DoctorDashboard() {
                 )}
 
                 {activeTab === 'prescription' && selected.status !== 'in-progress' && (
-                  <p style={{ color: '#6B7280' }}>Call this patient first to write a prescription.</p>
+                  <p style={{ color: 'var(--text-muted)' }}>Call this patient first to write a prescription.</p>
                 )}
               </div>
             </>
@@ -657,3 +657,4 @@ export default function DoctorDashboard() {
     </DashboardLayout>
   );
 }
+
