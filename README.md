@@ -2,6 +2,9 @@
 
 MediQueue is a role-based OPD queue platform for hospitals and clinics. It provides live token flow for reception, doctors, patients, and a public display board with real-time updates.
 
+Live Preview : https://tech-titans-hc-01-sage-bgx5.vercel.app
+
+
 ## What this project does
 
 - Manages OPD tokens across three roles: `reception`, `doctor`, and `patient`
