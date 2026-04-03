@@ -24,28 +24,6 @@ A global theme toggle is available in the **top-right corner on all pages**.
 - `Light` mode = light blue palette
 - Preference is saved in local storage (`opd_theme`)
 
-## FCM Notifications Setup
-
-Patient push notifications are enabled for:
-
-- Queue cancellation / absent (missed) updates
-- Reminder when estimated wait reaches **15-20 minutes**
-
-Add these environment variables to `.env.local`:
-
-```env
-NEXT_PUBLIC_FIREBASE_VAPID_KEY=your_web_push_vapid_key
-FIREBASE_PROJECT_ID=your_firebase_project_id
-FIREBASE_CLIENT_EMAIL=your_firebase_service_account_client_email
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-```
-
-Notes:
-
-- `NEXT_PUBLIC_FIREBASE_VAPID_KEY` is required on client side to get browser FCM token.
-- Admin credentials (`FIREBASE_*`) are required server-side to send push notifications.
-- Service worker file used: `public/firebase-messaging-sw.js`
-
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
@@ -57,11 +35,8 @@ To learn more about Next.js, take a look at the following resources:
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
+
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## AI Tools Used
-
-This project was developed with support from **AntiGravity**, **Codex**, and **ChatGPT**.
 
 ## Deploy on Vercel
 

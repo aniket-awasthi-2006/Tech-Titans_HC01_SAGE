@@ -26,10 +26,10 @@ export async function POST(_req: NextRequest) {
     const hash = (pw: string) => bcrypt.hash(pw, 12);
 
     const usersData = [
-      { name: 'Reception Staff',  email: 'reception@hospital.com', password: await hash('password123'), role: 'reception' },
-      { name: 'Dr Priya Sharma', email: 'doctor@hospital.com',    password: await hash('password123'), role: 'doctor',    specialization: 'General Medicine' },
-      { name: 'Dr Rohan Mehta',  email: 'doctor2@hospital.com',   password: await hash('password123'), role: 'doctor',    specialization: 'Cardiology' },
-      { name: 'Patient Demo',     email: 'patient@hospital.com',   password: await hash('password123'), role: 'patient' },
+      { name: 'Reception Staff', email: 'reception@hospital.com', password: await hash('password123'), role: 'reception' },
+      { name: 'Dr Priya Sharma', email: 'doctor@hospital.com', password: await hash('password123'), role: 'doctor', specialization: 'General Medicine' },
+      { name: 'Dr Rohan Mehta', email: 'doctor2@hospital.com', password: await hash('password123'), role: 'doctor', specialization: 'Cardiology' },
+      { name: 'Patient Demo', email: 'patient@hospital.com', phone: '+911234567890', password: await hash('Abcd@123'), role: 'patient' },
     ];
 
     // insertMany skips pre-save hooks → passwords stay single-hashed ✅
@@ -41,7 +41,7 @@ export async function POST(_req: NextRequest) {
         { role: 'reception', email: 'reception@hospital.com', password: 'password123' },
         { role: 'doctor',    email: 'doctor@hospital.com',    password: 'password123' },
         { role: 'doctor2',   email: 'doctor2@hospital.com',   password: 'password123' },
-        { role: 'patient',   email: 'patient@hospital.com',   password: 'password123' },
+        { role: 'patient', email: 'patient@hospital.com', phone: '+911234567890', password: 'Abcd@123' },
       ],
     });
   } catch (error: unknown) {
