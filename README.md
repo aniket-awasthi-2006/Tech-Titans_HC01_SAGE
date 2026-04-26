@@ -114,7 +114,7 @@ This resets core collections and creates demo users.
 After seeding via `scripts/reset-and-seed.ts`:
 
 - Reception: `reception@hospital.com` / `password123`
-- Doctor: `doctor@hospital.com` / `password123`
+- Doctor: `doctor1@hospital.com` / `password123`
 - Doctor: `doctor2@hospital.com` / `password123`
 - Patient (phone login): `9000000001` / `password123`
 - Patient (phone login): `9000000002` / `password123`
